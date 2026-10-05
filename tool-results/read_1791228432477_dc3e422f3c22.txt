@@ -1,0 +1,600 @@
+     1→
+     2→===== PAGE 1 =====
+     3→- 2 S.
+     4→462 A OR 4 5 43
+     5→United States Patent (19)
+     6→11) 4,151,431
+     7→Johnson 45) Apr. 24, 1979
+     8→(54) PERMANENT MAGNET MOTOR unpaired electron spins in ferro magnetic and other
+     9→76) Inventor: Howard R. Johnson, 3300 Mt. Hope materials as a source of magnetic fields for producing
+    10→power without any electron flow as occurs in normal
+    11→- Rd., Grass Lake, Mich. 49240
+    12→conductors, and to permanent magnet motors for utiliz
+    13→21 Appl. No.: 422,306
+    14→ing this method to produce a power source. In the prac
+    15→(22) Filed: Dec. 6, 1973 tice of the invention the unpaired electron spins occur
+    16→ring within permanent magnets are utilized to produce a
+    17→(51) Int. Cl. ...................... HO2K 41/00; HO2N 11/00
+    18→motive power source solely through the superconduc
+    19→52 U.S.C. ....................................... 310/12; 310/152
+    20→ting characteristics of a permanent magnet and the mag
+    21→(58) Field of Search............. 24/DIG. 9; 415/DIG. 2;
+    22→netic flux created by the magnets are controlled and
+    23→46/236; 273/118A, 119A, 120A, 121 A, 122
+    24→concentrated to orient the magnetic forces generated in
+    25→A, 123A, 124, 125A, 126 A, 130A, 131-A, 31
+    26→AD, 134 A, 135 A, 136 B, 137 AE, 138 A such a manner to do useful continuous work, such as the
+    27→displacement of a rotor with respect to a stator. The
+    28→(56) References Cited
+    29→timing and orientation of magnetic forces at the rotor
+    30→U.S. PATENT DOCUMENTS and stator components produced by permanent magnets
+    31→to produce a motor is accomplished with the proper
+    32→4,074,153 2/1978 Baker et al. ............................ 30/12
+    33→geometrical relationship of these components.
+    34→Primary Examiner-Donovan F. Duggan
+    35→Attorney, Agent, or Firm-Beaman & Beaman
+    36→57 ABSTRACT
+    37→The invention is directed to the method of utilizing the 28 Claims, 10 Drawing Figures
+    38→se FERRITE OF
+    39→THIS INVENTION
+    40→CONVENTIONAL
+    41→Ni FERRITE
+    42→O O 2O 3O
+    43→BIASSING MAGNETIC FIELD H (Oe)
+    44→===== PAGE 2 =====
+    45→4,151,431
+    46→U.S. Patent Apr. 24, 1979 Sheet 1 of 2
+    47→===== PAGE 3 =====
+    48→U.S. Patent Apr. 24, 1979 - Sheet 2 of 2 4,151,431
+    49→===== PAGE 4 =====
+    50→4,151,431
+    51→1. 2
+    52→flow of magnetic positive particles or magnetic flux
+    53→PERMANENT MAGNET MOTOR causes the unpaired electrons to spin at right angles.
+    54→Under cryogenic superconduction conditions the freez
+    55→FIELD OF THE INVENTION
+    56→ing of the crystals in place makes it possible for the spins
+    57→The invention pertains to the field of permanent mag to continue, and in a permanent magnet the grain orien
+    58→net motor devices solely using the magnetic fields cre tation of the magnetized material results in the spins
+    59→ated thereby to product motive power. permitting them to continue and for the flux to flow
+    60→parallel to the metal.
+    61→BACKGROUND OF THE INVENTION
+    62→In a superconductor, at first the electron is flowing
+    63→Conventional electric motors employ magnetic O and the positive particle is spinning; later, when critical,
+    64→forces to produce either rotative or linear motion. Elec the reverse occurs, i.e., the electron is spinning and the
+    65→tric motors operate on the principle that when a con positive particle is flowing at right angles. These posi
+    66→ductor is located in a magnetic field which carries cur tive particles will thread or work their way through the
+    67→rent a magnetic force is exerted upon it. electron spins present in the metal.
+    68→Normally, in a conventional electric motor, the rotor, 15 In a sense, a permanent magnet may be considered
+    69→or stator, or both, are so wired that magnetic fields the only room temperature superconductor. It is a su
+    70→created by electromagnetics may employ attraction, perconductor because the electron flow does not cease,
+    71→repulsion, or both types of magnetic forces, to impose a and this electron flow can be made to do work because
+    72→force upon the armature to cause rotation, or to cause of the magnetic field it supplies. Previously, this source
+    73→the armature to be displaced in a linear path. Conven 20 of power has not been used because it was not possible
+    74→tional electric motors may employ permanent magnets to modify the electron flow to accomplish the switching
+    75→either in the armature or stator components, but in the functions of the magnetic field. Such switching func
+    76→art heretofore known the use of permanent magnets in tions are common in a conventional electric motor
+    77→either the stator or armature require the creation of an where electrical current is employed to align the much
+    78→electromagnetic field to act upon the field produced by 25 greater electron current in the iron pole pieces and
+    79→the permanent magnets, and switching means are em concentrate the magnetic field at the proper places to
+    80→ployed to control the energization of the electromag give the thrust necessary to move the motor armature.
+    81→nets and the orientation of the magnetic fields, to pro In a conventional electric motor, switching is accom
+    82→duce the motive power. plished by the use of brushes, commutators, alternating
+    83→It is my belief that the full potential of magnetic current, or other known means.
+    84→forces existing in permanent magnets has not been rec In order to accomplish the switching function in a
+    85→ognized or utilized because of incomplete information permanent magnet motor, it is necessary to shield the
+    86→and theory with respect to the atomic motion occurring magnetic leakage so that it will not appear as too great
+    87→within a permanent magnet. It is my belief that a pres a loss factor at the wrong places. The best method to
+    88→ently unnamed atomic particle is associated with the 35 accomplish this is to use the superconductor of mag
+    89→electron movement of a superconducting electromagnet netic flux and concentrate it to the place where it will be
+    90→and the lossless current flow of Amperian currents in the most effective. Timing and switching can be
+    91→permanent magnets. The unpaired electron flow is simi achieved in a permanent magnet motor by concentrat
+    92→lar in both situations. This small particle is believed to ing the flux and using the proper geometry of the motor
+    93→be opposite in charge and to be located at right angles to rotor and stator to make most effective use of the mag
+    94→the moving electron, and the particle would be very netic fields generated by the electron spins. By the
+    95→small as to penetrate all known elements, in their vari proper combination of materials, geometry and mag
+    96→ous states as well as their known compounds, unless netic concentration, it is possible to achieve a mechani
+    97→they have unpaired electrons which capture these parti cal advantage of high ratio, greater than 100 to 1, capa
+    98→cles as they endeavor to pass therethrough. 45 ble of producing a continuous motive force.
+    99→Ferro electrons differ from those of most elements in To my knowledge, previous work done with perma
+   100→that they are unpaired, and being unpaired they spin nent magnets, and motive devices utilizing permanent
+   101→around the nucleus in such a way that they respond to magnets, have not achieved the result desired in the
+   102→magnetic fields as well as creating one themselves. If practice of the inventive concept, and it is with the
+   103→they were paired, their magnetic fields would cancel 50 proper combination of materials, geometry and mag
+   104→out. However, being unpaired they create a measurable netic concentration that the presence of the magnetic
+   105→magnetic field if their spins have been oriented in one spins within a permanent magnet may be utilized as a
+   106→direction. The spins are at right angles to their magnetic motive force.
+   107→fields.
+   108→In niobium superconductors at a critical state, the 55 SUMMARY OF THE INVENTION
+   109→magnetic lines of force cease to be at right angles. This It is an object of the invention to utilize the magnetic
+   110→change must be due to establishing the required condi spinning phenomenon of unpaired electrons occurring
+   111→tions for unpaired electronic spins instead of electron in ferro magnetic material to produce the movement of
+   112→flow in the conductor, and the fact that very powerful a mass in a unidirectional manner as to permit a motor
+   113→electromagnets that can be formed with superconduc to be driven solely by magnetic forces as occurring
+   114→tors illustrates the tremendous advantage of producing within permanent magnets. In the practice of the inven
+   115→the magnetic field by unpaired electron spins rather tive conceps, motors of either linear or rotative types
+   116→than conventional electron flow. may be produced.
+   117→In a superconducting metal, wherein the electrical It is an object of the invention to provide the proper
+   118→resistance becomes greater in the metal than the proton 65 combination of materials, geometry and magnetic con
+   119→resistance, the flow turns to electron spins and the posi centration to utilize the force generated by unpaired
+   120→tive particles flow parallel in the metal in the manner electron spins existing in permanent magnets to power a
+   121→occurring in a permanent magnet where a powerful motor. Whether the motor constitutes a linear embodi
+   122→===== PAGE 5 =====
+   123→4,151,431
+   124→3
+   125→4.
+   126→ment, or a rotary embodiment, in each instance the being imposed upon the armature magnets. In this man
+   127→"stator" may consist of a plurality of permanent mag
+   128→ner the speed of rotation of the rotary embodiment may
+   129→nets fixed relative to each other in space relationship to be regulated.
+   130→define a track, linear in form in the linear embodiment,
+   131→and circular in form in the rotary embodiment. An BRIEF DESCRIPTION OF THE DRAWINGS
+   132→armature magnet is located in spaced relationship to
+   133→The aforementioned objects and advantages of the
+   134→such track defined by the stator magnets wherein an air invention will be appreciated from the following de
+   135→gap exists therebetween. The length of the armature scription and accompanying drawings wherein:
+   136→magnet is defined by poles of opposite polarity, and the
+   137→FIG. 1 is a schematic view of electron flow in a su
+   138→length of the armature magnet is disposed relative to the O perconductor indicating the unpaired electron spins,
+   139→track defined by the stator magnets in the direction of
+   140→FIG. 2 is a cross-sectional view of a superconductor
+   141→the path of movement of the armature magnet as dis
+   142→under a critical state illustrating the electron spins,
+   143→placed by the magnetic forces.
+   144→FIG. 3 is a view of a permanent magnet illustrating
+   145→The stator magnets are so mounted that poles of like the flux movement therethrough,
+   146→polarity are disposed toward the armature magnet and
+   147→15 FIG. 4 is a cross-sectional view illustrating the diame
+   148→as the armature magnet has poles which are both at ter of the magnet of FIG. 3,
+   149→tracted to and repelled by the adjacent pole of the stator
+   150→FIG. 5 is an elevational representation of a linear
+   151→magnets, both attraction and repulsion forces act upon
+   152→motor embodiment of the permanent magnet motor of
+   153→the armature magnet to produce the relative displace
+   154→the invention illustrating one position of the armature
+   155→ment between the armature and stator magnets. 20 magnet relative to the stator magnets, and indicating the
+   156→The continuing motive force producing displacement
+   157→magnetic forces imposed upon the armature magnet,
+   158→between the armature and stator magnets results from
+   159→FIG. 6 is a view similar to FIG. 5 illustrating dis
+   160→the relationship of the length of the armature magnet in
+   161→placement of the armature magnet relative to the stator
+   162→the direction of its path of movement as related to the magnets, and the influence of magnetic forces thereon
+   163→dimension of the stator magnets, and the spacing there
+   164→25 at this location,
+   165→between, in the direction of the path of armature mag
+   166→FIG. 7 is a further elevational view similar to FIGS.
+   167→net movement. This ratio of magnet and magnet spac
+   168→5 and 6 illustrating further displacement of the armature
+   169→ings, and with an acceptable air gap spacing between
+   170→magnet to the left, and the influence of the magnetic
+   171→the stator and armature magnets, will produce a resul forces thereon,
+   172→tant force upon the airmature magnet which displaces
+   173→FIG. 8 is a top plan view of a linear embodiment of
+   174→the armature magnet across the stator magnet along its the inventive concept illustrating a pair of armature
+   175→path of movement. magnets in linked relationship disposed above the stator
+   176→In the practice of the invention movement of the magnets,
+   177→armature magnet relative to the stator magnets results
+   178→FIG. 9 is a diametrical, elevational, sectional view of
+   179→from a combination of attraction and repulsion forces
+   180→35 a rotary motor embodiment in accord with the inven
+   181→existing between the stator and armature magnets. By
+   182→tion as taken along section IX-X of FIG. 10, and
+   183→concentrating the magnetic fields of the stator and ar
+   184→FIG. 10 is an elevational view of the rotary motor
+   185→mature magnets the motive force imposed upon the
+   186→embodiment as taken along section X-X of FIG. 9.
+   187→armature magnet is intensified, and in the disclosed
+   188→DESCRIPTION OF THE PREFERRED
+   189→embodiments such magnetic field concentration means
+   190→are disclosed. EMBODIMENTS
+   191→The disclosed magnetic field concentrating means
+   192→In order to better understand the theory of the inven
+   193→comprise a plate of high magnetic field permeability
+   194→tive concept, reference is made to FIGS. 1 through 4. In
+   195→disposed adjacent one side of the stator magnets in sub FIG. a superconductor 1 is illustrated having a posi
+   196→stantial engagement therewith. This high permeability
+   197→45 tive particle flow as represented by arrow 2, the un
+   198→material is thus disposed adjacent poles of like polarity paired electrons of the ferrous conducting material 1
+   199→of the stator magnets. The magnetic field of the arma spin at right angles to the proton flow in the conductor
+   200→ture magnet may be concentrated and directionally
+   201→as represented by the spiral line and arrow 3. In accord
+   202→oriented by bowing the armature magnet, and the mag with the theory of the invention the spinning of the
+   203→netic field may further be concentrated by shaping the 50 ferrous unpaired electrons results from the atomic struc
+   204→pole ends of the armature magnet to concentrate the ture of ferrous materials and this spinning atomic parti
+   205→magnet field at a relatively limited surface at the arma cle is believed to be opposite in charge and located at
+   206→ture magnet pole ends. right angles to the moving electrons. It is assumed to be
+   207→Preferably, a plurality of armature magnets are used very small in size capable of penetrating other elements
+   208→which are staggered with respect to each other in the 55 and their compounds unless they have unpaired elec
+   209→direction of armature magnet movement. Such an off trons which capture these particles as they endeavor to
+   210→setting or staggering of the armature magnets distrib pass therethrough.
+   211→utes the impulses of force imposed upon the armature
+   212→The lack of electrical resistance of conductors at a
+   213→magnets and results in a smoother application of forces critical superconductor state has long been recognized,
+   214→to the armature magnet producing a smoother and more and superconductors have been utilized to produce
+   215→uniform movement of the armature component. very high magnetic flux density electromagnets. FIG. 2
+   216→In the rotary embodiment of the permanent magnet represents a cross section of a critical superconductor
+   217→motor of the invention the stator magnets are arranged and the electron spins are indicated by the arrows 3.
+   218→in a circle, and the armature magnets rotate about the A permanent magnet may be considered a supercon
+   219→stator magnets. Means are disclosed for producing rela
+   220→65 ductor as the electron flow therein does not cease, and
+   221→tive axial displacement between the stator and armature is without resistance, and unpaired electric spinning
+   222→magnets to adjust the axial alignment thereof, and particles exist which, in the practice of the invention,
+   223→thereby regulate the magnitude of the magnetic forces
+   224→are utilized to produce motor force. FIG. 3 illustrates a
+   225→===== PAGE 6 =====
+   226→4,151,431
+   227→5 6
+   228→horseshoe shaped permanent magnet at 4 and the mag the stator magnets 12 are indicated by the light dotted
+   229→netic flux therethrough is indicated by arrows 5, the lines.
+   230→magnetic flow being from the south pole to the north The armature magnet 24 is maintained in a spaced
+   231→pole and through the magnetic material. The accumu relationship above the stator track 22. This spacing may
+   232→lated electron spins occurring about the diameter of the be accomplished by mounting the armature magnet
+   233→magnet 5 are represented at 6 in FIG. 4, and the spin upon a slide, guide or track located above the stator
+   234→ning electron particles spin at right angles in the iron as magnets, or the armature magnet could be mounted
+   235→the flux travels through the magnet material. upon a wheeled vehicle carriage or slide supported
+   236→By utilizing the electron spinning theory of ferrous upon a nonmagnetic surface or guideway disposed be
+   237→material electrons, it is possible with the proper ferro 10 tween the stator magnets and the armature magnet. To
+   238→magnetic materials, geometry and magnetic concentra clarify the illustration, the means for supporting the
+   239→tion to utilize the spinning electrons to produce a mo armature magnet 24 is not illustrated and such means
+   240→tive force in a continuous direction, thereby resulting in form no part of invention, and it is to be understood that
+   241→a motor capable of doing work. the means supporting the armature magnet prevents the
+   242→It is appreciated that the embodiments of motors 5 arnature magnet from moving away from the stator
+   243→utilizing the concepts of the invention may take many magnets, or moving closer thereto, but permits free
+   244→forms, and in the illustrated forms the basic relation movement of the armature magnet to the left or right in
+   245→ships of components are illustrated in order to disclose a direction parallel to the track 22 defined by the stator
+   246→the inventive concepts and principles. magnets.
+   247→The relationships of the plurality of magnets defining 20 It will be noted that the length of the armature mag
+   248→the stator 10 are best appreciated from FIGS. 5 through net 24 is slightly greater than the width of two of the
+   249→8. The stator magnets 12 are preferably of a rectangular stator magnets 12 and the spacing therebetween. The
+   250→configuration, FIG. 8, and so magnetized that the poles magnetic forces acting upon the armature magnet when
+   251→exist at the large surfaces of the magnets, as will be in the position of FIG. 5 will be repulsion forces 34 due
+   252→appreciated from the N (North) and S (South) designa 25 to the proximity of like polarity forces and attraction
+   253→tions. The stator magnets include side edges 14 and 16 forces at 36 because of the opposite polarity of the south
+   254→pole of the armature magnet, and the north pole field of
+   255→and end edges 18. The stator maglets are mounted upon
+   256→a supporting plate 20, which is preferably of a metal the sector magnets. The relative strength of this force is
+   257→material having a high permeability to magnetic fields represented by the thickness of the force line.
+   258→30 The resultant of the force vectors imposed upon the
+   259→and magnetic flux such as that available under the trade
+   260→armature magnet as shown in FIG. 5 produce a primary
+   261→mark Netic CoNetic sold by the Perfection Mica Com
+   262→force vector 38 toward the left, FIG. 5, displacing the
+   263→pany of Chicago, Illinois. Thus, the plate 20 will be
+   264→armature magnet 24 toward the left. In FIG. 6 the mag
+   265→disposed toward the south pole of the stator magnets 12,
+   266→netic forces acting upon the armature magnet are repre
+   267→and preferably in direct engagement therewith, al
+   268→35 sented by the same reference numerals as in FIG. 5.
+   269→though a bonding material may be interposed between
+   270→While the forces 34 constitute repulsion forces tending
+   271→the magnets and the plate in order to accurately locate
+   272→to move the north pole of the armature magnet away
+   273→and fix the magnets on the plate, and position the stator
+   274→from the stator magnets, the attraction forces imposed
+   275→magnets with respect to each other.
+   276→upon the south pole of the armature magnet and some of
+   277→Preferably, the spacing between the stator magnets 12
+   278→the repulsion forces, tend to move the armature magnet
+   279→slightly differs between adjacent stator magnets as such
+   280→further to the left, and as the resultant force 38 contin
+   281→a variation in spacing varies the forces being imposed
+   282→ues to be toward the left the armature magnet continues
+   283→upon the armature magnet at its ends, at any given time,
+   284→to be forced to the left.
+   285→and thus results in a smoother movement of the arma
+   286→FIG. 7 represents further displacement of the arma
+   287→ture magnet relative to the stator magnets. Thus, the
+   288→45 ture magnet 24 to the left with respect to the position of
+   289→stator magnets so positioned relative to each other de
+   290→FIG. 6, and the magnetic forces acting thereon are
+   291→fine a track 22 having a longitudinal direction left to
+   292→represented by the same reference numerals as in FGS,
+   293→right as viewed in FIGS. 5 through 8.
+   294→5 and 6, and the stator magnet will continue to move to
+   295→In FIGS. 5 through 7 only a single armature magnet
+   296→the left, and such movement continues the length of the
+   297→24 is disclosed, while in FIG, 8 a pair of armature mag
+   298→SO track 22 defined by the stator magnets 12.
+   299→nets are shown. For purposes of understanding the con
+   300→Upon the armature magnet being reversed such that
+   301→cepts of the invention the description herein will be
+   302→the north pole is positioned at the right as viewed in
+   303→limited to the use of single armature magnet as shown in
+   304→FIG. 5, and the south pole is positioned at the left, the
+   305→FIGS. 5 through 7.
+   306→direction of movement of the armature magnet relative
+   307→The armature magnet is of an elongated configuration
+   308→55 to the stator magnets is toward the right, and the theory
+   309→wherein the length extends from left to right, FIG. 5,
+   310→of movement is identical to that described above.
+   311→and may be of a rectangular transverse cross-sectional
+   312→In FIG. 8 a plurality of armature magnets 40 and 42
+   313→shape. For magnetic field concentrating and orientation
+   314→are illustrated which are connected by links 44. The
+   315→purposes the magnet 24 is formed in an arcuate bowed armature magnets are of a shape and configuration iden
+   316→configuration as defined by concave surfaces 26 and
+   317→tical to that of the embodiment of FIG. 5, but the mag
+   318→convex surfaces 28, and the poles are defined at the ends nets are staggered with respect to each other in the
+   319→of the magnet as will be appreciated from FIG. 5. For
+   320→direction of magnet movement, i.e., the direction of the
+   321→further magnetic field concentrating purposes the ends track 22 defined by the stator magnets 12. By so stagger
+   322→of the armature magnet are shaped by beveled surfaces ing a plurality of armature magnets a smoother move
+   323→30 to minimize the cross-sectional area at the magnet 65 ment of the interconnected armature magnets is pro
+   324→ends at 32, and the magnetic flux existing between the duced as compared when using a single armature mag
+   325→poles of the armature magnet are as indicated by the net as there is variation in the forces acting upon each
+   326→light dotted lines. In like manner the magnetic fields of armature magnet as it moves above the track 22 due to
+   327→===== PAGE 7 =====
+   328→4,151,431
+   329→7 8
+   330→the change in magnetic forces imposed thereon. The use
+   331→vector tending to displace the armature magnets in their
+   332→of several armature magnets tends to "smooth out' the path of movement increases. However, the decreasing
+   333→application of forces imposed upon linked armature of the spacing between the armature and stator magnets
+   334→magnets, resulting in a smoother movement of the arma
+   335→creates a "pulsation' in the movement of the armature
+   336→ture magnet assembly. Of course, any number of arma- 5 magnets which is objectionable, but can be, to some
+   337→ture magnets may be interconnected, limited only by extent, minimized by using a plurality of armature mag
+   338→the width of the stator magnet track 22. nets. The increasing of the distance between the arma
+   339→In FIGS. 9 and 10 a rotary embodiment embracing ture and stator magnets reduces the pulsation tendency
+   340→the inventive concepts is illustrated. In this embodiment of the armature magnet, but also reduces the magnitude
+   341→the principle of operation is identical to that described 10 of the magnetic forces imposed upon the armature mag
+   342→above, but the orientation of the stator and armature nets. Thus, the most effective spacing between the ar
+   343→magnets is such that rotation of the armature magnets is mature magnets. Thus, the most effective spacing be
+   344→produced about an axis, rather than a linear movement tween the armature and stator magnets is that spacing
+   345→being achieved.
+   346→which produces the maximum force vector in the direc
+   347→In FIGS. 9 and 10 a base is represented at 46 serving 15 tion of armature magnet movement, with a minimum
+   348→as a support for a stator member 48. The stator member creation of objectionable pulsation.
+   349→48 is made of a nonmagnetic material, such as synthetic In the disclosed embodiments the high permeability
+   350→plastic, aluminum, or the like. The stator includes a plate 20 and sleeve 56 are disclosed for concentrating
+   351→cylindrical surface 50 having an axis, and a threaded the magnetic field of the stator magnets, and the arma
+   352→bore 52 is concentrically defined in the stator. The sta- 20 ture magnets are bowed and have shaped ends for mag
+   353→tor includes an annular groove 54 receiving an annular netic field concentration purposes. While such magnetic
+   354→sleeve 56 of high magnetic field permeability material
+   355→field concentration means result in higher forces im
+   356→such as Netic Co-Netic and a plurality of stator magnets posed upon the armature magnets for given magnet
+   357→58 are affixed upon the sleeve 56 in spaced circumferen intensities, it is not intended that the inventive concepts
+   358→tial relationship as will be apparent in FIG. 10. Prefera- 25 be limited to the use of such magnetic field concentrat
+   359→bly, the stator magnets 58 are formed with converging ing means.
+   360→radial sides as to be of a wedge configuration having a As will be appreciated from the above description of
+   361→curved inner surface engaging sleeve 56, and a convex the invention, the movement of the armature magnet or
+   362→outer pole surface 60. magnets resultsfrom the described relationship of com
+   363→The armature 62, in the illustrated embodiment, is of 30 ponents. The length of the armature magnets as related
+   364→a dished configuration having a radial web portion, and to the width of the stator magnets and spacing therebe
+   365→an axially extending portion 64. The armature 62 is tween, the dimension of the air gap and the configura
+   366→formed of a nonmagnetic material, and an annular belt tion of the magnetic field, combined, produce the de
+   367→receiving groove 66 is defined therein for receiving a sired result and motion. The inventive concepts may be
+   368→belt for transmitting power from the armature to a gen- 35 practiced even though these relationships may be varied
+   369→erator, or other power consuming device. Three arma within limits not yet defined and the invention is in
+   370→ture magnets 68 are mounted on the armature portion tended to encompass all dimensional relationships
+   371→64, and such magnets are of a configuration similar to which achieve the desired goal of armature movement.
+   372→the armature magnet configuration of FIGS. 5 through By way of example, with respect to FIGS. 4-7, the
+   373→7. The magnets 68 are staggered with respect to each 40 following dimensions were used in an operating proto
+   374→other in a circumferential direction wherein the mag type:
+   375→nets are not disposed as 120" circumferential relation The length of armature magnet 24 is 3", the stator
+   376→ships to each other. Rather, a slight angular staggering magnets 12 are 1' wide, ' thick and 4" long and grain
+   377→of the armature magnets is desirable to "smooth out' oriented. The air gap between the poles of the armature
+   378→the magnetic forces being imposed upon the armature as 45 magnet and the stator magnets is approximately 1 '' and
+   379→a result of the magnetic forces being simultaneously the spacing between the stator magnets is approxi
+   380→imposed upon each of the armature magnets. The stag mately '' inch.
+   381→gering of the armature magnets 68 in a circumferential In effect, the stator magnets define a magnetic field
+   382→direction produces the same effect as the staggering of track of a single polarity transversely interrupted at
+   383→the armature magnets 40 and 42 as shown in FIG. 8. 50 spaced locations by the magnetic fields produced by the
+   384→The armature 62 is mounted upon a threaded shaft 70 lines of force existing between the poles of the stator
+   385→by antifriction bearings 72, and the shaft 70 is threaded magnets and the unidirectional force exerted on the
+   386→into the stator threaded bore 52, and may be rotated by armature magnet is a result of the repulsion and attrac
+   387→the knob 74. In this manner rotation of the knob 74, and tion forces existing as the armature magnet traverses
+   388→shaft 70, axially displaces the armature 62 with respect 55 this magnetic field track.
+   389→to the stator magnets 58, and such axial displacement It is to be understood that the inventive conceptem
+   390→will very the magnitude of the magnetic forces imposed braces an arrangement wherein the armature magnet
+   391→upon the armature magnets 68 by the stator magnets component is stationary and the stator assembly is sup
+   392→thereby controlling the speed of rotation of the arma ported for movement and constitutes the moving com
+   393→tute. 60 ponent, and other variations of the inventive concept
+   394→As will be noted from FIGS. 4-7 and 9 and 10, an air will be apparent to those skilled in the art without de
+   395→gap exists between the armature magnet or magnets and parting from the scope thereof. As used herein the term
+   396→the stator magnets and the dimension of this spacing,
+   397→"track' is intended to include both linear and circular
+   398→effects the magnitude of the forces imposed upon the arrangements of the static magnets, and the "direction'
+   399→armature magnet or magnets. If the distance between 65 or "length" of the track is that direction parallel or
+   400→the armature magents, and the stator magnets is reduced concentric to the intended direction of armature magnet
+   401→the forces imposed upon the armature magnets by the
+   402→novement.
+   403→stator magnets are increased, and the resultant force I claim:
+   404→===== PAGE 8 =====
+   405→4,151,431
+   406→10
+   407→1. A permanent magnet motor comprising, in combi 13. In a permanent magnet motor as in claim 12
+   408→nation, a stator track defining a track direction and wherein said armature magnets are circumferentially
+   409→having first and second sides and composed of a plural nonuniformily spaced on said armature.
+   410→ity of track permanent magnets each having first and 14. A permanent magnet motor comprising, in combi
+   411→second poles of opposite polarity, said magnets being nation, a stator comprising a plurality of circumferen
+   412→disposed in side-by-side relationship having a spacing tially spaced stator permanent magnets having poles of
+   413→between adjacent magnets and like poles defining said opposite polarity, said magnets being arranged to sub
+   414→track sides, an elongated armature permanent magnet stantially define a circle having an axis, the poles of said
+   415→located on one of said track sides for relative movement magnets facing in a radial direction with respect to said
+   416→thereto and in spaced relationship to said track side 10 axis and poles of the same polarity facing away from
+   417→wherein an air gap exists between said armature magnet said axis and the poles of opposite polarity facing
+   418→and said track magnets, said armature magnet having toward said axis, an armature mounted for rotation
+   419→first and second poles of opposite polarity located at the about said axis and diposed adjacent said stator, at least
+   420→opposite ends of said armature magnet defining the one armature permanent magnet having poles of oppo
+   421→length thereof, the length of said armature magnet being 15 site polarity mounted on said armature and in radial
+   422→disposed in a direction in general alignment with the spaced relationship to said circle of stator magnets, said
+   423→arnature magnet poles extending in the circumferential
+   424→direction of said track, the spacing of said armature
+   425→direction of armature rotation, the spacing of said arma
+   426→magnet poles from said track associated side and the
+   427→ture magnet poles from said stator magnets and the
+   428→length of said armature magnet as related to the width
+   429→and spacing of said track magnets in the direction of said 20 circumferential length of said armature magnet and the
+   430→spacing of said stator magnets being such as to impose a
+   431→track being such as to impose a continuous force on said
+   432→continuing circumferential force on said armature mag
+   433→armature magnet in said general direction of said track.
+   434→net tu rotate said armature.
+   435→2. In a permanent magnet motor as in claim 1 wherein
+   436→15. In a permanent magnet motor as in claim 14
+   437→the spacing between said poles of said armature magnet
+   438→25 wherein a plurality of armature magnets are mounted
+   439→and the adjacent stator track side are substantially equal.
+   440→upon said armature.
+   441→3. In a permanent magnet motor as in claim 1 wherein
+   442→16. In a permanent magnet motor as in claim 14
+   443→the spacing between adjacent track magnets varies.
+   444→wherein said armature magnets are asymmetrically cir
+   445→4. In a permanent magnet motor as in claim 1 wherein cumferentially spaced on said armature.
+   446→a plurality of armature magnets are disposed on a com
+   447→17. In a permanent magnet motor as in claim 14
+   448→mon side of said stator track, said armature magnets wherein the poles of said armature magnet are shaped to
+   449→being mechanically interconnected.
+   450→concentrate the magnetic field thereof.
+   451→5. In a permanent magnet motor as in claim 4 wherein 18. In a permanent magnet motor as in claim 14, mag
+   452→said armature magnets are staggered with respect to netic field concentrating means associated with said
+   453→each other in the direction of said track. 35 stator magnets concentrating the magnetic fields
+   454→6. In a permanent magnet motor as in claim 1 wherein thereof at the spacings between adjacent stator mag
+   455→magnetic field concentrating means are associated with nets.
+   456→said track magnets. 19. In a permanent magnet motor as in claim 18
+   457→7. In a permanent magnet motor as in claim 6 wherein wherein said magnet field concentrating means com
+   458→said field concentrating means comprises a sheet of 40 prises an annular ring of high magnetic field permeabil
+   459→magnetic material of high magnetic field permeability ity material concentric with said axis and in substantial
+   460→engaging side and pole of said track magnets opposite to engagement with poles of like polarity of said stator
+   461→that side and pole disposed toward said armature mag magnets.
+   462→20. In a permanent magnet motor as in claim 14
+   463→et.
+   464→8. In a permanent magnet motor as in claim 1 wherein 45 wherein said armature magnet is of an arcuate bowed
+   465→said armature magnet is of an arcuate configuration in configuration in the direction of said poles thereof de
+   466→its longitudinal direction bowed toward said track, said fining a concave side and a convex side, said concave
+   467→said armature magnet having ends shaped to concen side being disposed toward said axis, and said poles of
+   468→trate the magnetic field at said ends. said armature magnet being shaped to concentrate the
+   469→magnetic field between said poles thereof.
+   470→9. In a permanent magnet motor as in claim 1 wherein
+   471→21. In a permanent magnet motor as in claim 14,
+   472→said stator track is of a generally linear configuration,
+   473→means for axially displacing said stator and armature
+   474→and means supporting said armature magnet relative to
+   475→relative to each other to adjust the axial alignment of
+   476→said track for generally linear movement of said arma
+   477→said stator and armature magnets.
+   478→ture magnet.
+   479→55 22. The method of producing a unidirectional motive
+   480→10. In a permanent magnet motor as in claim 1
+   481→force by permanent magnets using a plurality of spaced
+   482→wherein said stator track magnets define a circle having
+   483→stator permanent magnets having opposite polarity
+   484→an axis, an armature rotatably mounted with respect to
+   485→poles defining a track having a predetermined direction,
+   486→said track and concentric and coaxial thereto, said arma
+   487→and an armature magnet having a length defined by
+   488→ture magnet being mounted upon said armature.
+   489→poles of opposite polarity movably mounted for move
+   490→11. In a permanent magnet motor as in claim 10,
+   491→ment relative to the track in the direction thereof, and of
+   492→means axially adjusting said armature relative to said
+   493→a predetermined length determined by the width and
+   494→track whereby the axial relationship of said armature dimensions of said stator magnets comprising forming a
+   495→magnet and said stator magnets may be varied to adjust
+   496→magnetic field track by said stator magnets having a
+   497→the rate of rotation of said armature. 65 magnetic field of common polarity interrupted at
+   498→12. In a permanent magnet motor as in claim 10 spaced locations in a direction transverse to the direc
+   499→wherein a plurality of armature magnets are mounted tion of said magnetic field track by magnetic fields cre
+   500→on said armature. ated by magnetic lines of force existing between the
+   501→===== PAGE 9 =====
+   502→4,151,431
+   503→1.
+   504→12
+   505→poles of the stator magnets and positioning the armature
+   506→magnetic field existing between the poles of the arma
+   507→magnet in spaced relation to said magnetic field track
+   508→ture magnet.
+   509→longitudinally related to the direction of the magnetic
+   510→26. The method of producing a motive force by per
+   511→field track such a distance that the repulsion and attrac
+   512→manent magnets wherein the unpaired electron spinning
+   513→tion forces imposed on the armature magnet by said
+   514→particles existing within a permanent magnet are uti.
+   515→magnetic field track inposes a continuing unidirectional
+   516→lized for producing a motive force comprising forming
+   517→force on the armature magnet in the direction of the
+   518→a stator magnetic field track by means of at least one
+   519→magnetic field track,
+   520→permanent magnet, producing an armature magnetic
+   521→23. The method of producing a unidirectional motive
+   522→field by means of a permament magnet and shaping and
+   523→force as in claim 22 including concentrating the mag
+   524→10 locating said magnetic fields in such a manner as to
+   525→netic fields created by magnetic lines of force between
+   526→produce relative continuous unidirectional motion be
+   527→the poles of the stator magnets,
+   528→tween said stator and armature field producing magnets.
+   529→24. The method of producing a unidirectional motive
+   530→27. The method of producing a motive force by per
+   531→force as in claim 22 including concentrating the mag
+   532→manent magnets as in claim 26 wherein said stator mag
+   533→netic field existing between the poles of the armature
+   534→S netic field is substantially of a single polarity.
+   535→magnet.
+   536→28. The method of producing a motive force by per
+   537→25. The method of producing a unidirectional motive
+   538→manent magnets as in claim 26 including concentrating
+   539→force as in claim 22 including concentrating the mag
+   540→the magnetic field of said stator field track and armature
+   541→netic fields created by magnetic lines of force between magnetic field.
+   542→the poles of the stator magnets and concentrating the
+   543→20 s
+   544→25
+   545→30
+   546→35
+   547→45
+   548→50
+   549→55
+   550→65
+   551→===== PAGE 10 =====
+   552→—
+   553→UNITED STATES PATENT AND TRADEMARK OFFICE
+   554→CERTIFICATE OF CORRECTION
+   555→PATENT NO. : 4, 15l, 43l
+   556→DATED : April 24, l979
+   557→INVENTOR(S) . Howard R. Johnson
+   558→It is certified that error appears in the above-identified patent and that said Letters Patent
+   559→is hereby Corrected as shown below:
+   560→The title page should be deleted to insert the attached title
+   561→page therefor.
+   562→Column l2, claims 26, 27 and 28 should be deleted inclusively.
+   563→eigned and Sealed this
+   564→Twenty-sixth O 2 y O f August 1980
+   565→SEAL
+   566→Attest:
+   567→SIDNEY A. DAMOND
+   568→Attesting Officer Commissioner of Patents and Trademarks
+   569→===== PAGE 11 =====
+   570→United States Patent (19) 11 45:43
+   571→45) Apr. 24, 1979
+   572→Johnson
+   573→(54) PERMANENT MAGNET MOTOR unpaired electron spins in ferro magnetic and other
+   574→materials as a source of magnetic fields for producing
+   575→76) Inventor: Howard R. Johnson, 3300 Mt. Hope
+   576→power without any electron flow as occurs in normal
+   577→Rd., Grass Lake, Mich. 49240
+   578→conductors, and to permanent magnet motors for utiliz
+   579→(21) Appl. No.: 422,306 ing this method to produce a power source. In the prac
+   580→tice of the invention the unpaired electron spins occur
+   581→(22 Filed: Dec. 6, 1973
+   582→ring within permanent magnets are utilized to produce a
+   583→5i) int. C. ...................... H02K 41/00; H02N 11/00 motive power source solely through the superconduc
+   584→52 U.S. Cl. ....................................... 310/12; 310/152 ting characteristics of a permanent magnet and the mag
+   585→58) Field of Search ............. 24/DIG. 9; 415/DIG. 2; netic flux created by the magnets are controlled and
+   586→46/236; 273/118 A, 119 A, 120 A, 12 A, 122 concentrated to orient the magnetic forces generated in
+   587→A, 123A, 124, 125A, 126 A, 130 A, 31 A, 131
+   588→such a manner to do useful continuous work, such as the
+   589→AD, 134 A, 135 A, 136 B, 137 AE, 138 A
+   590→displacement of a rotor with respect to a stator. The
+   591→(56) References Cited timing and orientation of magnetic forces at the rotor
+   592→and stator components produced by permanent magnets
+   593→U.S. PATENT DOCUMENTS
+   594→to produce a motor is accomplished with the proper
+   595→4,074, 53 2/1978 Baker et al. ............................ 310/12 geometrical relationship of these components.
+   596→Primary Examiner-Donovan F. Duggan
+   597→Attorney, Agent, or Firm-Beaman & Beaman
+   598→(57) ABSTRACT
+   599→25 Claims, 10 Drawing Figures
+   600→The invention is directed to the method of utilizing the
