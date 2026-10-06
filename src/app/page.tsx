@@ -10,6 +10,7 @@ import {
   type UIStrings,
 } from "@/lib/patent/i18n";
 import FlapVariantPage from "@/components/build-guide/FlapVariantPage";
+import PushVariantPage from "@/components/build-guide/PushVariantPage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +55,7 @@ import {
   Printer,
   Download,
   Disc3,
+  Target,
 } from "lucide-react";
 
 // ============================================================
@@ -756,13 +758,14 @@ export default function Home() {
   const [lang, setLang] = useLanguage();
   const t = stringsByLang[lang];
   const vt = variantStringsByLang[lang];
-  // Variant toggle: "original" (Johnson patent) or "flap" (circular disc variant)
+  // Variant toggle: "original" (Johnson patent), "flap" (circular disc variant),
+  // or "push" (image-based diametric push motor).
   // Persisted to localStorage so the user's choice survives a refresh.
-  const [variant, setVariant] = useState<"original" | "flap">(() => {
+  const [variant, setVariant] = useState<"original" | "flap" | "push">(() => {
     if (typeof window === "undefined") return "original";
     try {
       const v = localStorage.getItem("pmm-variant");
-      return v === "flap" || v === "original" ? v : "original";
+      return v === "flap" || v === "push" || v === "original" ? (v as "original" | "flap" | "push") : "original";
     } catch {
       return "original";
     }
@@ -820,7 +823,7 @@ export default function Home() {
     return patentClaims.filter((c) => c.text.toLowerCase().includes(claimSearch.toLowerCase()));
   }, [claimSearch, patentClaims]);
 
-  // ⬇⬇ EARLY RETURN for the flap variant — placed AFTER all hooks so we don't
+  // ⬇⬇ EARLY RETURN for the variant pages — placed AFTER all hooks so we don't
   // violate the React Hooks "rules of hooks" rule.
   if (variant === "flap") {
     return (
@@ -829,6 +832,18 @@ export default function Home() {
         onPrint={() => window.print()}
         onBackToOriginal={() => setVariant("original")}
         onLanguageToggle={() => setLang(lang === "en" ? "he" : "en")}
+        onGoToPush={() => setVariant("push")}
+      />
+    );
+  }
+  if (variant === "push") {
+    return (
+      <PushVariantPage
+        lang={lang}
+        onPrint={() => window.print()}
+        onBackToOriginal={() => setVariant("original")}
+        onLanguageToggle={() => setLang(lang === "en" ? "he" : "en")}
+        onGoToFlap={() => setVariant("flap")}
       />
     );
   }
@@ -904,6 +919,16 @@ export default function Home() {
 
           {/* Right: design toggle + print button + language toggle */}
           <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="default"
+              onClick={() => setVariant("push")}
+              className="text-xs gap-1.5 bg-gradient-to-r from-purple-600 to-slate-900 hover:from-purple-700 hover:to-slate-800"
+              title={vt.pushSubtitle}
+            >
+              <Target className="h-3.5 w-3.5" />
+              <span className="hidden md:inline">{vt.push}</span>
+            </Button>
             <Button
               size="sm"
               variant="default"

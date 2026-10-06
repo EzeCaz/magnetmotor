@@ -680,6 +680,8 @@ export interface VariantStrings {
   originalSubtitle: string;
   flap: string;
   flapSubtitle: string;
+  push: string;
+  pushSubtitle: string;
 }
 
 const variantStringsEn: VariantStrings = {
@@ -688,6 +690,8 @@ const variantStringsEn: VariantStrings = {
   originalSubtitle: "Howard R. Johnson's 1979 design — magnet armature + magnet stator",
   flap: "Circular Flap Variant",
   flapSubtitle: "Modified design — ferromagnetic disc + 2-3 static side magnets",
+  push: "Diametric Push Motor",
+  pushSubtitle: "Image-based prototype — diametrically magnetized disc + 2 repulsion magnets",
 };
 
 const variantStringsHe: VariantStrings = {
@@ -696,6 +700,8 @@ const variantStringsHe: VariantStrings = {
   originalSubtitle: "תכנון ג'ונסון מ-1979 — ארמטורה מגנטית + סטטור מגנטי",
   flap: "וריאנט דיסקה מסתובבת",
   flapSubtitle: "תכנון מותאם — דיסקה פרומגנטית + 2-3 מגנטי צד סטטיים",
+  push: "מנוע דחיפה דיאמטרי",
+  pushSubtitle: "אב-טיפוס מבוסס תמונה — דיסקה מגנטיז דיאמטרית + 2 מגנטי דחייה",
 };
 
 export const variantStringsByLang: Record<Lang, VariantStrings> = {
@@ -868,5 +874,65 @@ export const flapDataByLang: Record<Lang, LocalizedFlapData> = {
     flapSafetyItems: flapSafetyItemsHe,
     flapTroubleshooting: flapTroubleshootingHe,
     flapConfigs: flapConfigsHe,
+  },
+};
+
+// ============================================================
+// Localized PUSH VARIANT data accessor
+// Third design — based on user-uploaded image. Diametrically
+// magnetized disc + 2 static repulsion magnets.
+// ============================================================
+import {
+  pushVariantInfo as pushVariantInfoEn,
+  pushTheoryPoints as pushTheoryPointsEn,
+  pushBomItems as pushBomItemsEn,
+  pushWorkshopTools as pushWorkshopToolsEn,
+  pushPrototypeDimensions as pushPrototypeDimensionsEn,
+  pushBuildSteps as pushBuildStepsEn,
+  pushSafetyItems as pushSafetyItemsEn,
+  pushTroubleshooting as pushTroubleshootingEn,
+} from "./push-variant";
+import {
+  pushVariantInfoHe,
+  pushTheoryPointsHe,
+  pushBomItemsHe,
+  pushWorkshopToolsHe,
+  pushPrototypeDimensionsHe,
+  pushBuildStepsHe,
+  pushSafetyItemsHe,
+  pushTroubleshootingHe,
+} from "./push-variant.he";
+
+export interface LocalizedPushData {
+  pushVariantInfo: typeof pushVariantInfoEn;
+  pushTheoryPoints: typeof pushTheoryPointsEn;
+  pushBomItems: typeof pushBomItemsEn;
+  pushWorkshopTools: typeof pushWorkshopToolsEn;
+  pushPrototypeDimensions: typeof pushPrototypeDimensionsEn;
+  pushBuildSteps: typeof pushBuildStepsEn;
+  pushSafetyItems: typeof pushSafetyItemsEn;
+  pushTroubleshooting: typeof pushTroubleshootingEn;
+}
+
+export const pushDataByLang: Record<Lang, LocalizedPushData> = {
+  en: {
+    pushVariantInfo: pushVariantInfoEn,
+    pushTheoryPoints: pushTheoryPointsEn,
+    pushBomItems: pushBomItemsEn,
+    pushWorkshopTools: pushWorkshopToolsEn,
+    pushPrototypeDimensions: pushPrototypeDimensionsEn,
+    pushBuildSteps: pushBuildStepsEn,
+    pushSafetyItems: pushSafetyItemsEn,
+    pushTroubleshooting: pushTroubleshootingEn,
+  },
+  he: {
+    pushVariantInfo: pushVariantInfoHe,
+    pushTheoryPoints: pushTheoryPointsHe,
+    pushBomItems: pushBomItemsHe,
+    pushWorkshopTools: pushWorkshopToolsHe,
+    pushPrototypeDimensions: pushPrototypeDimensionsHe,
+    pushBuildSteps: pushBuildStepsHe,
+    pushSafetyItems: pushSafetyItemsHe,
+    pushTroubleshooting: pushTroubleshootingHe,
   },
 };
