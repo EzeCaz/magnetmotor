@@ -2,20 +2,9 @@
 
 import { useState, useEffect, useMemo, useRef } from "react";
 import {
-  patentInfo,
-  bomItems,
-  workshopTools,
-  theoryPoints,
-  prototypeDimensions,
-  linearBuildSteps,
-  rotaryBuildSteps,
-  patentClaims,
-  safetyItems,
-  troubleshooting,
-  type BomItem,
-} from "@/lib/patent/data";
-import {
   stringsByLang,
+  dataByLang,
+  detectLanguageFromNavigator,
   type Lang,
   type UIStrings,
 } from "@/lib/patent/i18n";
@@ -60,6 +49,8 @@ import {
   Zap,
   CircleDot,
   Languages,
+  Printer,
+  Download,
 } from "lucide-react";
 
 // ============================================================
@@ -76,28 +67,33 @@ const round = (n: number, decimals = 4): number => {
 const r2 = (n: number): number => round(n, 2);
 
 // ============================================================
-// LANGUAGE HOOK
+// LANGUAGE HOOK with auto-detection
+// Priority:
+//   1. localStorage `pmm-lang` if set (user explicitly chose)
+//   2. navigator.languages (auto-detect from browser/HTTP Accept-Language)
+//   3. Default "en"
+// The lazy initialiser runs once on the client; SSR returns "en" (typeof window
+// is undefined). After hydration, the inline <script> in layout.tsx has already
+// set document.dir to match the localStorage value (if any), so there's no
+// visual flash for users with a saved preference. Users with no saved
+// preference but an `he` browser will see a single-frame flash from LTR→RTL
+// after hydration — this is acceptable for an auto-detect feature.
 // ============================================================
 function useLanguage(): [Lang, (l: Lang) => void] {
-  // Initial state reads localStorage on the client. SSR returns "en" (the typeof window
-  // check returns false during server render). After hydration, the inline <script> in
-  // layout.tsx has already set document.dir to match, so there's no visual flash, and
-  // the React tree on the client reconciles with the same "en" initial render because
-  // the lazy initialiser runs once on the client too (independent of SSR HTML).
-  // We then sync the actual stored value through a one-shot effect that updates the
-  // state only if it differs from the default — the lint warning is acceptable here
-  // because the state is reacting to genuinely external (localStorage) state.
   const [lang, setLang] = useState<Lang>(() => {
     if (typeof window === "undefined") return "en";
     try {
-      const v = localStorage.getItem("pmm-lang") as Lang | null;
-      return v === "en" || v === "he" ? v : "en";
+      // 1) User's explicit saved preference
+      const stored = localStorage.getItem("pmm-lang") as Lang | null;
+      if (stored === "en" || stored === "he") return stored;
+      // 2) Auto-detect from navigator.languages (mirrors Accept-Language header)
+      return detectLanguageFromNavigator();
     } catch {
       return "en";
     }
   });
 
-  // On mount, sync document direction to match the initial state (no setState needed).
+  // Sync document direction to match the language on mount and changes.
   useEffect(() => {
     document.documentElement.lang = lang;
     document.documentElement.dir = lang === "he" ? "rtl" : "ltr";
@@ -756,8 +752,23 @@ function TheoryDiagram({ t }: { t: UIStrings }) {
 export default function Home() {
   const [lang, setLang] = useLanguage();
   const t = stringsByLang[lang];
+  // Localized patent data — switches between English and Hebrew data modules
+  // based on the current language.
+  const data = dataByLang[lang];
+  const {
+    patentInfo,
+    bomItems,
+    workshopTools,
+    theoryPoints,
+    prototypeDimensions,
+    linearBuildSteps,
+    rotaryBuildSteps,
+    patentClaims,
+    safetyItems,
+    troubleshooting,
+  } = data;
 
-  const [activeFilter, setActiveFilter] = useState<"all" | BomItem["category"]>("all");
+  const [activeFilter, setActiveFilter] = useState<"all" | "magnet" | "metal" | "structural" | "hardware" | "tooling">("all");
   const [bomSearch, setBomSearch] = useState("");
   const [completedLinear, setCompletedLinear] = useState<Set<string>>(new Set());
   const [completedRotary, setCompletedRotary] = useState<Set<string>>(new Set());
@@ -772,12 +783,12 @@ export default function Home() {
       if (bomSearch && !`${b.part} ${b.spec} ${b.purpose} ${b.source}`.toLowerCase().includes(bomSearch.toLowerCase())) return false;
       return true;
     });
-  }, [activeFilter, bomSearch]);
+  }, [activeFilter, bomSearch, bomItems]);
 
   const filteredClaims = useMemo(() => {
     if (!claimSearch) return patentClaims;
     return patentClaims.filter((c) => c.text.toLowerCase().includes(claimSearch.toLowerCase()));
-  }, [claimSearch]);
+  }, [claimSearch, patentClaims]);
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -793,6 +804,12 @@ export default function Home() {
   const linearProgress = (completedLinear.size / (linearBuildSteps.length * 4)) * 100;
   const rotaryProgress = (completedRotary.size / (rotaryBuildSteps.length * 4)) * 100;
   const bomProgress = (completedBom.size / bomItems.length) * 100;
+
+  // Print handler — opens the browser's print dialog. The user can save as PDF.
+  // Print CSS hides the sticky nav and footer for a clean printout.
+  const handlePrint = () => {
+    window.print();
+  };
 
   // Section metadata (icon + label key in nav)
   const sectionsMeta = [
@@ -842,8 +859,18 @@ export default function Home() {
             })}
           </nav>
 
-          {/* Right: language toggle */}
+          {/* Right: language toggle + print button */}
           <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handlePrint}
+              className="text-xs gap-1.5 print-hide"
+              title={t === stringsByLang.en ? "Print or save as PDF" : "הדפסה או שמירה כ-PDF"}
+            >
+              <Printer className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">{t === stringsByLang.en ? "Print / PDF" : "הדפס / PDF"}</span>
+            </Button>
             <Button
               size="sm"
               variant="outline"
@@ -1350,7 +1377,7 @@ export default function Home() {
       </section>
 
       {/* ===== FOOTER ===== */}
-      <footer className="mt-auto border-t bg-slate-900 text-slate-300">
+      <footer className="mt-auto border-t bg-slate-900 text-slate-300 print-hide">
         <div className="container mx-auto max-w-7xl px-4 py-8">
           <div className="grid md:grid-cols-3 gap-6 text-sm">
             <div>

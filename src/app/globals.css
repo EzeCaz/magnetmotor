@@ -120,3 +120,137 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* ============================================================
+   PRINT STYLES — produce a clean printable / PDF-exportable doc
+   Hides: sticky header, nav, language toggle, print button, footer
+   Forces: full content visibility, expanded build-step cards,
+            all sections on new pages, sensible print colors.
+   ============================================================ */
+@media print {
+  /* Hide interactive chrome */
+  .print-hide,
+  header.sticky,
+  footer,
+  nav,
+  [role="navigation"] {
+    display: none !important;
+  }
+
+  /* Reset layout for paper */
+  html, body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+    line-height: 1.45 !important;
+  }
+
+  .container {
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 12mm !important;
+  }
+
+  /* Reset sections */
+  section {
+    padding-top: 6mm !important;
+    padding-bottom: 6mm !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  section#overview {
+    padding-top: 0 !important;
+  }
+
+  /* Each major section starts on a new page (except the first) */
+  section#theory,
+  section#bom,
+  section#tools,
+  section#linear,
+  section#rotary,
+  section#simulator,
+  section#safety,
+  section#claims,
+  section#troubleshoot {
+    page-break-before: always;
+    break-before: page;
+  }
+
+  /* Expand all collapsed build-step cards so all content prints */
+  /* (Collapsible content uses Radix UI / state — for print, we
+     reveal all by overriding the parent's height/overflow) */
+  [data-slot="card-content"] {
+    display: block !important;
+  }
+
+  /* Remove sticky positioning from any elements that stay sticky */
+  * {
+    position: static !important;
+  }
+
+  /* Force colors to print (avoid white-on-white) */
+  .bg-slate-900, .bg-slate-800, .bg-slate-700 {
+    background: #1e293b !important;
+    color: #f1f5f9 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .text-white {
+    color: #ffffff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Background gradient pages — flatten to white for print */
+  .bg-gradient-to-b,
+  .bg-gradient-to-br {
+    background: #ffffff !important;
+  }
+
+  /* Cards: keep borders but remove shadows */
+  [data-slot="card"] {
+    box-shadow: none !important;
+    border: 1px solid #cbd5e1 !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Tables: prevent row splitting across pages */
+  tr, thead {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  thead {
+    display: table-header-group;
+  }
+
+  /* SVG diagrams: ensure they fit on the page */
+  svg {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Sliders and other interactive controls — render as static value text */
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 4px;
+    background: #cbd5e1 !important;
+    border-radius: 2px;
+  }
+
+  /* Badges: print backgrounds */
+  [data-slot="badge"] {
+    border: 1px solid currentColor !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* Long claim text: avoid awkward breaks */
+  p, li {
+    orphans: 3;
+    widows: 3;
+  }
+}
+

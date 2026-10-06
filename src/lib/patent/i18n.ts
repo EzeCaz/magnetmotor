@@ -669,3 +669,107 @@ export const stringsByLang: Record<Lang, UIStrings> = {
   en: enStrings,
   he: heStrings,
 };
+
+// ============================================================
+// Localized data accessor
+// Returns the appropriate data module (English or Hebrew) for the
+// current language. This is what the page imports to render
+// language-aware BOM, claims, build steps, etc.
+// ============================================================
+import {
+  patentInfo as patentInfoEn,
+  bomItems as bomItemsEn,
+  workshopTools as workshopToolsEn,
+  theoryPoints as theoryPointsEn,
+  prototypeDimensions as prototypeDimensionsEn,
+  linearBuildSteps as linearBuildStepsEn,
+  rotaryBuildSteps as rotaryBuildStepsEn,
+  patentClaims as patentClaimsEn,
+  safetyItems as safetyItemsEn,
+  troubleshooting as troubleshootingEn,
+} from "./data";
+import {
+  patentInfoHe,
+  bomItemsHe,
+  workshopToolsHe,
+  theoryPointsHe,
+  prototypeDimensionsHe,
+  linearBuildStepsHe,
+  rotaryBuildStepsHe,
+  patentClaimsHe,
+  safetyItemsHe,
+  troubleshootingHe,
+} from "./data.he";
+
+export interface LocalizedData {
+  patentInfo: typeof patentInfoEn;
+  bomItems: typeof bomItemsEn;
+  workshopTools: typeof workshopToolsEn;
+  theoryPoints: typeof theoryPointsEn;
+  prototypeDimensions: typeof prototypeDimensionsEn;
+  linearBuildSteps: typeof linearBuildStepsEn;
+  rotaryBuildSteps: typeof rotaryBuildStepsEn;
+  patentClaims: typeof patentClaimsEn;
+  safetyItems: typeof safetyItemsEn;
+  troubleshooting: typeof troubleshootingEn;
+}
+
+export const dataByLang: Record<Lang, LocalizedData> = {
+  en: {
+    patentInfo: patentInfoEn,
+    bomItems: bomItemsEn,
+    workshopTools: workshopToolsEn,
+    theoryPoints: theoryPointsEn,
+    prototypeDimensions: prototypeDimensionsEn,
+    linearBuildSteps: linearBuildStepsEn,
+    rotaryBuildSteps: rotaryBuildStepsEn,
+    patentClaims: patentClaimsEn,
+    safetyItems: safetyItemsEn,
+    troubleshooting: troubleshootingEn,
+  },
+  he: {
+    patentInfo: patentInfoHe,
+    bomItems: bomItemsHe,
+    workshopTools: workshopToolsHe,
+    theoryPoints: theoryPointsHe,
+    prototypeDimensions: prototypeDimensionsHe,
+    linearBuildSteps: linearBuildStepsHe,
+    rotaryBuildSteps: rotaryBuildStepsHe,
+    patentClaims: patentClaimsHe,
+    safetyItems: safetyItemsHe,
+    troubleshooting: troubleshootingHe,
+  },
+};
+
+// ============================================================
+// Accept-Language auto-detection
+// Returns the preferred language based on the Accept-Language header
+// or navigator.languages. Defaults to "en" if no preference or
+// if Hebrew is not explicitly preferred.
+// ============================================================
+export function detectLanguage(acceptLanguage: string | null | undefined): Lang {
+  if (!acceptLanguage) return "en";
+  // Parse the Accept-Language header: "en-US,en;q=0.9,he;q=0.8,fr;q=0.7"
+  const entries = acceptLanguage
+    .split(",")
+    .map((part) => {
+      const [tag, qStr] = part.trim().split(";");
+      const q = qStr ? parseFloat(qStr.replace("q=", "")) : 1;
+      return { tag: tag.toLowerCase(), q: isNaN(q) ? 1 : q };
+    })
+    .filter((e) => e.tag)
+    .sort((a, b) => b.q - a.q);
+
+  for (const e of entries) {
+    if (e.tag.startsWith("he") || e.tag.startsWith("iw") || e.tag.startsWith("he-il")) return "he";
+    if (e.tag.startsWith("en")) return "en"; // first match wins if no Hebrew ahead
+  }
+  return "en";
+}
+
+export function detectLanguageFromNavigator(): Lang {
+  if (typeof navigator === "undefined") return "en";
+  const langs = navigator.languages ?? [navigator.language];
+  const acceptHeader = langs.join(",");
+  return detectLanguage(acceptHeader);
+}
