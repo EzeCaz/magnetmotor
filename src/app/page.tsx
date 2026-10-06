@@ -14,6 +14,11 @@ import {
   troubleshooting,
   type BomItem,
 } from "@/lib/patent/data";
+import {
+  stringsByLang,
+  type Lang,
+  type UIStrings,
+} from "@/lib/patent/i18n";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -54,29 +59,85 @@ import {
   ArrowLeftRight,
   Zap,
   CircleDot,
+  Languages,
 } from "lucide-react";
+
+// ============================================================
+// HYDRATION FIX: deterministic rounding for SVG path values
+// Floating-point precision differences between Node.js and Chrome
+// V8 can produce different last-decimal results for Math.cos/sin.
+// Rounding to 4 decimals ensures server-rendered HTML exactly
+// matches client-rendered HTML, preventing React hydration warnings.
+// ============================================================
+const round = (n: number, decimals = 4): number => {
+  const f = Math.pow(10, decimals);
+  return Math.round(n * f) / f;
+};
+const r2 = (n: number): number => round(n, 2);
+
+// ============================================================
+// LANGUAGE HOOK
+// ============================================================
+function useLanguage(): [Lang, (l: Lang) => void] {
+  // Initial state reads localStorage on the client. SSR returns "en" (the typeof window
+  // check returns false during server render). After hydration, the inline <script> in
+  // layout.tsx has already set document.dir to match, so there's no visual flash, and
+  // the React tree on the client reconciles with the same "en" initial render because
+  // the lazy initialiser runs once on the client too (independent of SSR HTML).
+  // We then sync the actual stored value through a one-shot effect that updates the
+  // state only if it differs from the default — the lint warning is acceptable here
+  // because the state is reacting to genuinely external (localStorage) state.
+  const [lang, setLang] = useState<Lang>(() => {
+    if (typeof window === "undefined") return "en";
+    try {
+      const v = localStorage.getItem("pmm-lang") as Lang | null;
+      return v === "en" || v === "he" ? v : "en";
+    } catch {
+      return "en";
+    }
+  });
+
+  // On mount, sync document direction to match the initial state (no setState needed).
+  useEffect(() => {
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "he" ? "rtl" : "ltr";
+  }, [lang]);
+
+  const changeLang = (l: Lang) => {
+    setLang(l);
+    try {
+      localStorage.setItem("pmm-lang", l);
+    } catch {
+      // ignore
+    }
+    document.documentElement.lang = l;
+    document.documentElement.dir = l === "he" ? "rtl" : "ltr";
+  };
+
+  return [lang, changeLang];
+}
 
 // ============================================================
 // SECTION NAVIGATION
 // ============================================================
-const sections = [
-  { id: "overview", label: "Overview", icon: FileText },
-  { id: "theory", label: "Theory", icon: BookOpen },
-  { id: "bom", label: "Materials (BOM)", icon: Boxes },
-  { id: "tools", label: "Tools & Workshop", icon: Wrench },
-  { id: "linear", label: "Linear Build", icon: ArrowLeftRight },
-  { id: "rotary", label: "Rotary Build", icon: RotateCw },
-  { id: "simulator", label: "Force Simulator", icon: Gauge },
-  { id: "safety", label: "Safety", icon: ShieldAlert },
-  { id: "claims", label: "Patent Claims", icon: ListChecks },
-  { id: "troubleshoot", label: "Troubleshooting", icon: TriangleAlert },
-];
+const sectionIds = [
+  "overview",
+  "theory",
+  "bom",
+  "tools",
+  "linear",
+  "rotary",
+  "simulator",
+  "safety",
+  "claims",
+  "troubleshoot",
+] as const;
 
 // ============================================================
 // HELPERS
 // ============================================================
 function useScrollSpy() {
-  const [active, setActive] = useState("overview");
+  const [active, setActive] = useState<string>("overview");
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -86,8 +147,8 @@ function useScrollSpy() {
       },
       { rootMargin: "-30% 0px -60% 0px" }
     );
-    sections.forEach((s) => {
-      const el = document.getElementById(s.id);
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
       if (el) observer.observe(el);
     });
     return () => observer.disconnect();
@@ -98,7 +159,7 @@ function useScrollSpy() {
 // ============================================================
 // LINEAR MOTOR INTERACTIVE SVG
 // ============================================================
-function LinearMotorDiagram() {
+function LinearMotorDiagram({ t }: { t: UIStrings }) {
   const [position, setPosition] = useState(50); // 0..100 (% along track)
   const [autoPlay, setAutoPlay] = useState(false);
 
@@ -124,17 +185,20 @@ function LinearMotorDiagram() {
   const TRACK_RIGHT = TRACK_LEFT + STATOR_COUNT * STATOR_W + (STATOR_COUNT - 1) * STATOR_GAP;
   const ARMATURE_LEN = 2 * STATOR_W + STATOR_GAP + 5; // slightly greater than 2 stators + gap
 
-  const armatureX = TRACK_LEFT + (position / 100) * (TRACK_RIGHT - TRACK_LEFT - ARMATURE_LEN);
+  // Deterministic, rounded armature position
+  const armatureX = round(TRACK_LEFT + (position / 100) * (TRACK_RIGHT - TRACK_LEFT - ARMATURE_LEN), 2);
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-3 items-center justify-between">
         <div>
           <p className="text-sm font-medium text-muted-foreground">
-            Interactive linear motor — slide the armature along the stator track
+            {t.build.linearInteractDesc}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            Each stator magnet (red = N up, blue = S down) is 1 in wide; gap is 0.25 in. Armature is 3 in long (≈ 2 stators + 1 gap).
+            {t === stringsByLang.en
+              ? "Each stator magnet (red = N up, blue = S down) is 1 in wide; gap is 0.25 in. Armature is 3 in long (≈ 2 stators + 1 gap)."
+              : "כל מגנט סטטור (אדום = N למעלה, כחול = S למטה) ברוחב 1 אינץ'; רווח 0.25 אינץ'. ארמטורה באורך 3 אינץ' (≈ 2 סטטורים + רווח)."}
           </p>
         </div>
         <Button
@@ -142,7 +206,7 @@ function LinearMotorDiagram() {
           variant={autoPlay ? "secondary" : "default"}
           onClick={() => setAutoPlay(!autoPlay)}
         >
-          {autoPlay ? "Pause" : "Auto-run"}
+          {autoPlay ? t.build.pause : t.build.autoRun}
         </Button>
       </div>
 
@@ -172,20 +236,17 @@ function LinearMotorDiagram() {
         {/* Backing plate (high-μ) */}
         <rect x={TRACK_LEFT - 10} y={140} width={TRACK_RIGHT - TRACK_LEFT + 20} height={20} fill="url(#backingGrad)" rx="2" />
         <text x={TRACK_LEFT - 5} y={172} className="text-[10px] fill-slate-600 font-medium">
-          High-μ backing plate (Netic Co-Netic)
+          {t === stringsByLang.en ? "High-μ backing plate (Netic Co-Netic)" : "לוח אחורי בעל חדירות גבוהה (Netic Co-Netic)"}
         </text>
 
         {/* Stator magnets */}
         {Array.from({ length: STATOR_COUNT }).map((_, i) => {
           const x = TRACK_LEFT + i * (STATOR_W + STATOR_GAP);
-          // Variable gap: alternate slightly to show "varied spacing"
           const offsetX = i % 2 === 0 ? 0 : 3;
           return (
             <g key={i}>
-              {/* N face (top, red) */}
               <rect x={x + offsetX} y={100} width={STATOR_W} height={20} fill="url(#statorGradN)" stroke="#7f1d1d" strokeWidth="0.5" />
               <text x={x + offsetX + STATOR_W / 2} y={114} textAnchor="middle" className="text-[10px] fill-white font-bold">N</text>
-              {/* S face (bottom, blue) — bonded to backing */}
               <rect x={x + offsetX} y={120} width={STATOR_W} height={20} fill="url(#statorGradS)" stroke="#1e3a8a" strokeWidth="0.5" />
               <text x={x + offsetX + STATOR_W / 2} y={134} textAnchor="middle" className="text-[10px] fill-white font-bold">S</text>
             </g>
@@ -194,26 +255,23 @@ function LinearMotorDiagram() {
 
         {/* Air gap indicator */}
         <line x1={TRACK_LEFT} y1={92} x2={TRACK_RIGHT} y2={92} stroke="#94a3b8" strokeDasharray="3,3" strokeWidth="0.5" />
-        <text x={TRACK_RIGHT + 4} y={96} className="text-[9px] fill-slate-500">air gap ≈ 0.125 in</text>
+        <text x={TRACK_RIGHT + 4} y={96} className="text-[9px] fill-slate-500">
+          {t === stringsByLang.en ? "air gap ≈ 0.125 in" : "רווח אוויר ≈ 0.125 אינץ'"}
+        </text>
 
-        {/* Armature magnet (bowed, with beveled ends) */}
+        {/* Armature magnet */}
         <g transform={`translate(${armatureX}, 0)`}>
-          {/* Concave-down bowed body */}
           <path
             d={`M 0,80 Q ${ARMATURE_LEN / 2},72 ${ARMATURE_LEN},80 L ${ARMATURE_LEN - 6},95 Q ${ARMATURE_LEN / 2},88 6,95 Z`}
             fill="url(#armatureGrad)"
             stroke="#7f1d1d"
             strokeWidth="0.8"
           />
-          {/* Beveled pole end caps */}
           <polygon points={`0,80 -5,82 -5,93 0,95`} fill="#7f1d1d" />
           <polygon points={`${ARMATURE_LEN},80 ${ARMATURE_LEN + 5},82 ${ARMATURE_LEN + 5},93 ${ARMATURE_LEN},95`} fill="#7f1d1d" />
-          {/* N pole label (left end) */}
           <text x={6} y={90} className="text-[10px] fill-white font-bold">N</text>
-          {/* S pole label (right end) */}
           <text x={ARMATURE_LEN - 12} y={90} className="text-[10px] fill-white font-bold">S</text>
 
-          {/* Force vector */}
           <line
             x1={ARMATURE_LEN / 2}
             y1={65}
@@ -226,10 +284,8 @@ function LinearMotorDiagram() {
           <text x={ARMATURE_LEN / 2 + 28} y={69} className="text-[10px] fill-red-600 font-bold">F→</text>
         </g>
 
-        {/* Direction-of-motion indicator */}
-        <text x={TRACK_LEFT} y={195} className="text-[10px] fill-slate-600 font-medium">← direction of motion (N left, S right) →</text>
+        <text x={TRACK_LEFT} y={195} className="text-[10px] fill-slate-600 font-medium">{t.build.motionDir}</text>
 
-        {/* Track reference line */}
         <line x1={TRACK_LEFT} y1={185} x2={TRACK_RIGHT} y2={185} stroke="#cbd5e1" strokeWidth="1" markerEnd="url(#arrowR)" />
       </svg>
 
@@ -245,36 +301,30 @@ function LinearMotorDiagram() {
           step={1}
         />
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Track start</span>
-          <span>Position: {position.toFixed(0)}%</span>
-          <span>Track end</span>
+          <span>{t.build.trackStart}</span>
+          <span>{t.build.position}: {position.toFixed(0)}%</span>
+          <span>{t.build.trackEnd}</span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
         <div className="rounded-lg bg-emerald-50 border border-emerald-200 p-3">
           <p className="font-semibold text-emerald-900 flex items-center gap-2">
-            <Zap className="h-4 w-4" /> Always-On Thrust
+            <Zap className="h-4 w-4" /> {t.build.alwaysOn}
           </p>
-          <p className="text-xs text-emerald-800 mt-1">
-            At every position, the N pole of the armature is repelled by the next stator N pole while the S pole is attracted by the previous stator S pole. Net force vector always points left.
-          </p>
+          <p className="text-xs text-emerald-800 mt-1">{t.build.alwaysOnDesc}</p>
         </div>
         <div className="rounded-lg bg-amber-50 border border-amber-200 p-3">
           <p className="font-semibold text-amber-900 flex items-center gap-2">
-            <Layers className="h-4 w-4" /> 2-Stator Length Ratio
+            <Layers className="h-4 w-4" /> {t.build.lengthRatio}
           </p>
-          <p className="text-xs text-amber-800 mt-1">
-            Armature length ≈ 2 stator widths + 1 gap. This guarantees that one end is always in repulsion while the other is always in attraction.
-          </p>
+          <p className="text-xs text-amber-800 mt-1">{t.build.lengthRatioDesc}</p>
         </div>
         <div className="rounded-lg bg-sky-50 border border-sky-200 p-3">
           <p className="font-semibold text-sky-900 flex items-center gap-2">
-            <Settings className="h-4 w-4" /> Variable Stator Spacing
+            <Settings className="h-4 w-4" /> {t.build.varSpacing}
           </p>
-          <p className="text-xs text-sky-800 mt-1">
-            Stator gaps alternate slightly to smooth the force pulse. Reversing the armature (N↔S) reverses the direction of motion.
-          </p>
+          <p className="text-xs text-sky-800 mt-1">{t.build.varSpacingDesc}</p>
         </div>
       </div>
     </div>
@@ -284,7 +334,7 @@ function LinearMotorDiagram() {
 // ============================================================
 // ROTARY MOTOR INTERACTIVE SVG
 // ============================================================
-function RotaryMotorDiagram() {
+function RotaryMotorDiagram({ t }: { t: UIStrings }) {
   const [angle, setAngle] = useState(0); // degrees
   const [autoPlay, setAutoPlay] = useState(true);
   const [axialEngagement, setAxialEngagement] = useState(80); // %
@@ -306,19 +356,70 @@ function RotaryMotorDiagram() {
   // 3 armature magnets at staggered angles (NOT 120°)
   const armatureAngles = [0, 122, 244];
 
+  // Pre-compute all stator wedge paths with deterministic rounding
+  const statorPaths = useMemo(() => {
+    return Array.from({ length: statorCount }).map((_, i) => {
+      const a = (i / statorCount) * 2 * Math.PI - Math.PI / 2;
+      const wAngle = (2 * Math.PI) / statorCount * 0.85;
+      const offset = i % 2 === 0 ? 0 : 0.04;
+      const aStart = a - wAngle / 2 + offset;
+      const aEnd = a + wAngle / 2 + offset;
+      const rIn = statorR - 22;
+      const rOut = statorR - 3;
+      const x1 = round(cx + rOut * Math.cos(aStart), 2);
+      const y1 = round(cy + rOut * Math.sin(aStart), 2);
+      const x2 = round(cx + rOut * Math.cos(aEnd), 2);
+      const y2 = round(cy + rOut * Math.sin(aEnd), 2);
+      const x3 = round(cx + rIn * Math.cos(aEnd), 2);
+      const y3 = round(cy + rIn * Math.sin(aEnd), 2);
+      const x4 = round(cx + rIn * Math.cos(aStart), 2);
+      const y4 = round(cy + rIn * Math.sin(aStart), 2);
+      const labelX = round(cx + (rOut - 12) * Math.cos(a), 2);
+      const labelY = round(cy + (rOut - 12) * Math.sin(a) + 3, 2);
+      return { x1, y1, x2, y2, x3, y3, x4, y4, rOut, rIn, labelX, labelY };
+    });
+  }, []);
+
+  // Pre-compute armature wedge paths with deterministic rounding
+  // The engagement factor only depends on axialEngagement, not on angle (rotation is applied as a transform)
+  const armaturePaths = useMemo(() => {
+    const engagement = axialEngagement / 100;
+    return armatureAngles.map((baseAngle) => {
+      const a = (baseAngle * Math.PI) / 180 - Math.PI / 2;
+      const wedgeHalfAngle = (2 * Math.PI / statorCount) * 0.45 * engagement;
+      const aStart = a - wedgeHalfAngle;
+      const aEnd = a + wedgeHalfAngle;
+      const rIn = armatureR - 18;
+      const rOut = armatureR - 2;
+      const x1 = round(cx + rOut * Math.cos(aStart), 2);
+      const y1 = round(cy + rOut * Math.sin(aStart), 2);
+      const x2 = round(cx + rOut * Math.cos(aEnd), 2);
+      const y2 = round(cy + rOut * Math.sin(aEnd), 2);
+      const x3 = round(cx + rIn * Math.cos(aEnd), 2);
+      const y3 = round(cy + rIn * Math.sin(aEnd), 2);
+      const x4 = round(cx + rIn * Math.cos(aStart), 2);
+      const y4 = round(cy + rIn * Math.sin(aStart), 2);
+      const labelX = round(cx + (rIn + 5) * Math.cos(a), 2);
+      const labelY = round(cy + (rIn + 5) * Math.sin(a) + 3, 2);
+      return { x1, y1, x2, y2, x3, y3, x4, y4, rOut, rIn, labelX, labelY, baseAngle };
+    });
+  }, [axialEngagement]);
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap gap-3 items-center justify-between">
         <div>
           <p className="text-sm font-medium text-muted-foreground">
-            Interactive rotary motor — 3 staggered armature magnets rotate around 12 stator magnets
+            {t === stringsByLang.en
+              ? "Interactive rotary motor — 3 staggered armature magnets rotate around 12 stator magnets"
+              : "מנוע רוטרי אינטראקטיבי — 3 מגנטי ארמטורה מדורגים מסתובבים סביב 12 מגנטי סטטור"}
           </p>
           <p className="text-xs text-muted-foreground mt-1">
-            Adjust axial engagement to see the effect on rotation speed (speed regulator from the patent).
+            {t.build.rotaryInteractDesc}
           </p>
         </div>
         <Button size="sm" variant={autoPlay ? "secondary" : "default"} onClick={() => setAutoPlay(!autoPlay)}>
-          {autoPlay ? "Pause" : "Spin"}
+          {autoPlay ? t.build.pause : t.build.spin}
         </Button>
       </div>
 
@@ -345,101 +446,55 @@ function RotaryMotorDiagram() {
           </marker>
         </defs>
 
-        {/* Stator outer ring (high-μ sleeve) */}
+        {/* Stator outer ring */}
         <circle cx={cx} cy={cy} r={statorR - 10} fill="url(#statorRingGrad)" stroke="#475569" strokeWidth="2" />
         <circle cx={cx} cy={cy} r={statorR} fill="none" stroke="#64748b" strokeWidth="3" />
         <text x={cx} y={cy - statorR - 8} textAnchor="middle" className="text-[10px] fill-slate-600 font-medium">
-          High-μ sleeve (Netic Co-Netic annular ring)
+          {t === stringsByLang.en ? "High-μ sleeve (Netic Co-Netic annular ring)" : "שרוול עם חדירות גבוהה (טבעת Netic Co-Netic)"}
         </text>
 
-        {/* 12 stator magnets as wedges around the ring */}
-        {Array.from({ length: statorCount }).map((_, i) => {
-          const a = (i / statorCount) * 2 * Math.PI - Math.PI / 2;
-          const wAngle = (2 * Math.PI) / statorCount * 0.85;
-          // Slight variation in spacing
-          const offset = i % 2 === 0 ? 0 : 0.04;
-          const aStart = a - wAngle / 2 + offset;
-          const aEnd = a + wAngle / 2 + offset;
-          const rIn = statorR - 22;
-          const rOut = statorR - 3;
-          const x1 = cx + rOut * Math.cos(aStart);
-          const y1 = cy + rOut * Math.sin(aStart);
-          const x2 = cx + rOut * Math.cos(aEnd);
-          const y2 = cy + rOut * Math.sin(aEnd);
-          const x3 = cx + rIn * Math.cos(aEnd);
-          const y3 = cy + rIn * Math.sin(aEnd);
-          const x4 = cx + rIn * Math.cos(aStart);
-          const y4 = cy + rIn * Math.sin(aStart);
-          return (
-            <g key={i}>
-              <path
-                d={`M ${x1} ${y1} A ${rOut} ${rOut} 0 0 0 ${x2} ${y2} L ${x3} ${y3} A ${rIn} ${rIn} 0 0 1 ${x4} ${y4} Z`}
-                fill="url(#wedgeGradN)"
-                stroke="#7f1d1d"
-                strokeWidth="0.6"
-              />
-              <text
-                x={cx + (rOut - 12) * Math.cos(a)}
-                y={cy + (rOut - 12) * Math.sin(a) + 3}
-                textAnchor="middle"
-                className="text-[9px] fill-white font-bold"
-              >
-                N
-              </text>
-            </g>
-          );
-        })}
+        {/* 12 stator magnets */}
+        {statorPaths.map((p, i) => (
+          <g key={i}>
+            <path
+              d={`M ${p.x1} ${p.y1} A ${p.rOut} ${p.rOut} 0 0 0 ${p.x2} ${p.y2} L ${p.x3} ${p.y3} A ${p.rIn} ${p.rIn} 0 0 1 ${p.x4} ${p.y4} Z`}
+              fill="url(#wedgeGradN)"
+              stroke="#7f1d1d"
+              strokeWidth="0.6"
+            />
+            <text x={p.labelX} y={p.labelY} textAnchor="middle" className="text-[9px] fill-white font-bold">N</text>
+          </g>
+        ))}
 
         {/* Center hub */}
         <circle cx={cx} cy={cy} r={45} fill="url(#hubGrad)" stroke="#334155" strokeWidth="1.5" />
         <circle cx={cx} cy={cy} r={8} fill="#1e293b" />
-        {/* Threaded shaft visualization */}
         <line x1={cx} y1={cy - 8} x2={cx} y2={cy - 60} stroke="#94a3b8" strokeWidth="2" strokeDasharray="2,2" />
-        <text x={cx + 8} y={cy - 60} className="text-[9px] fill-slate-600">threaded shaft</text>
+        <text x={cx + 8} y={cy - 60} className="text-[9px] fill-slate-600">
+          {t === stringsByLang.en ? "threaded shaft" : "ציר מחורז"}
+        </text>
 
-        {/* 3 armature magnets at stagger angles, rotating */}
-        <g transform={`rotate(${angle} ${cx} ${cy})`}>
-          {armatureAngles.map((baseAngle, i) => {
-            const a = (baseAngle * Math.PI) / 180 - Math.PI / 2;
-            const rA = armatureR - 10;
-            const x = cx + rA * Math.cos(a);
-            const y = cy + rA * Math.sin(a);
-            const engagement = axialEngagement / 100;
-            // Scale armature magnet width by engagement
-            const wedgeHalfAngle = (2 * Math.PI / statorCount) * 0.45 * engagement;
-            const aStart = a - wedgeHalfAngle;
-            const aEnd = a + wedgeHalfAngle;
-            const rIn = armatureR - 18;
-            const rOut = armatureR - 2;
-            const x1 = cx + rOut * Math.cos(aStart);
-            const y1 = cy + rOut * Math.sin(aStart);
-            const x2 = cx + rOut * Math.cos(aEnd);
-            const y2 = cy + rOut * Math.sin(aEnd);
-            const x3 = cx + rIn * Math.cos(aEnd);
-            const y3 = cy + rIn * Math.sin(aEnd);
-            const x4 = cx + rIn * Math.cos(aStart);
-            const y4 = cy + rIn * Math.sin(aStart);
-            return (
-              <g key={i}>
-                <path
-                  d={`M ${x1} ${y1} A ${rOut} ${rOut} 0 0 1 ${x2} ${y2} L ${x3} ${y3} A ${rIn} ${rIn} 0 0 0 ${x4} ${y4} Z`}
-                  fill="url(#wedgeGradS)"
-                  stroke="#1e3a8a"
-                  strokeWidth="0.8"
-                />
-                <text
-                  x={cx + (rIn + 5) * Math.cos(a)}
-                  y={cy + (rIn + 5) * Math.sin(a) + 3}
-                  textAnchor="middle"
-                  transform={`rotate(${baseAngle + 90} ${cx + (rIn + 5) * Math.cos(a)} ${cy + (rIn + 5) * Math.sin(a) + 3})`}
-                  className="text-[9px] fill-white font-bold"
-                >
-                  S
-                </text>
-              </g>
-            );
-          })}
-
+        {/* 3 armature magnets, rotating as a group */}
+        <g transform={`rotate(${round(angle, 2)} ${cx} ${cy})`}>
+          {armaturePaths.map((p, i) => (
+            <g key={i}>
+              <path
+                d={`M ${p.x1} ${p.y1} A ${p.rOut} ${p.rOut} 0 0 1 ${p.x2} ${p.y2} L ${p.x3} ${p.y3} A ${p.rIn} ${p.rIn} 0 0 0 ${p.x4} ${p.y4} Z`}
+                fill="url(#wedgeGradS)"
+                stroke="#1e3a8a"
+                strokeWidth="0.8"
+              />
+              <text
+                x={p.labelX}
+                y={p.labelY}
+                textAnchor="middle"
+                transform={`rotate(${p.baseAngle + 90} ${p.labelX} ${p.labelY})`}
+                className="text-[9px] fill-white font-bold"
+              >
+                S
+              </text>
+            </g>
+          ))}
           {/* Rotation arrow */}
           <path
             d={`M ${cx + 55} ${cy} A 55 55 0 0 1 ${cx + 38} ${cy + 40}`}
@@ -450,21 +505,19 @@ function RotaryMotorDiagram() {
           />
         </g>
 
-        {/* Direction label */}
         <text x={cx} y={cy + armatureR + 25} textAnchor="middle" className="text-[10px] fill-slate-600 font-medium">
-          ↻ rotation (staggered armature magnets 0°, 122°, 244°)
+          ↻ {t === stringsByLang.en ? "rotation (staggered armature magnets 0°, 122°, 244°)" : "סיבוב (מגנטי ארמטורה מדורגים 0°, 122°, 244°)"}
         </text>
 
-        {/* Engagement indicator visualization */}
-        <text x="20" y="20" className="text-[10px] fill-slate-600 font-medium">Axial engagement: {axialEngagement}%</text>
+        <text x="20" y="20" className="text-[10px] fill-slate-600 font-medium">
+          {t === stringsByLang.en ? `Axial engagement: ${axialEngagement}%` : `הצמדה צירית: ${axialEngagement}%`}
+        </text>
         <rect x="20" y="25" width="120" height="6" rx="2" fill="#e2e8f0" />
         <rect x="20" y="25" width={(axialEngagement / 100) * 120} height="6" rx="2" fill="#dc2626" />
       </svg>
 
       <div className="space-y-2">
-        <label className="text-xs text-muted-foreground font-medium">
-          Axial engagement (speed regulator)
-        </label>
+        <label className="text-xs text-muted-foreground font-medium">{t.build.axialEngagement}</label>
         <Slider
           value={[axialEngagement]}
           onValueChange={(v) => setAxialEngagement(v[0])}
@@ -473,9 +526,9 @@ function RotaryMotorDiagram() {
           step={1}
         />
         <div className="flex justify-between text-xs text-muted-foreground">
-          <span>Low (slow)</span>
+          <span>{t.build.low}</span>
           <span>{axialEngagement}%</span>
-          <span>Full (fast)</span>
+          <span>{t.build.full}</span>
         </div>
       </div>
     </div>
@@ -485,62 +538,67 @@ function RotaryMotorDiagram() {
 // ============================================================
 // FORCE vs AIR-GAP SIMULATOR
 // ============================================================
-function AirGapSimulator() {
-  const [gap, setGap] = useState(125); // mils (0.001 in)
-  const [magnetGrade, setMagnetGrade] = useState(50); // N50
+function AirGapSimulator({ t }: { t: UIStrings }) {
+  const [gap, setGap] = useState(125); // mils
+  const [magnetGrade, setMagnetGrade] = useState(50);
   // Simplified force model: F = k * Br^2 * exp(-gap/gap0)
-  // Br for NdFeB N50 ≈ 1.4 T; N42 ≈ 1.28 T
   const Br = 1.28 + ((magnetGrade - 42) / 8) * 0.05;
   const k = 0.05;
-  const gapMm = gap * 0.0254; // mils → mm
+  const gapMm = gap * 0.0254;
   const forceNet = k * Br * Br * Math.exp(-(gapMm / 5)) * 100;
   const forcePulse = 0.4 * forceNet * Math.exp(-Math.abs(gapMm - 3) / 6);
-  const smoothness = Math.max(0, 100 - (forcePulse / forceNet) * 100);
+  const smoothness = Math.max(0, 100 - (forcePulse / Math.max(forceNet, 0.01)) * 100);
+
+  let optMessage = t.simulator.optHigh;
+  if (smoothness > 75) optMessage = t.simulator.optExcellent;
+  else if (smoothness > 50) optMessage = t.simulator.optAcceptable;
 
   return (
     <div className="grid md:grid-cols-2 gap-6">
       <div className="space-y-4">
         <div>
-          <label className="text-sm font-medium">Air gap: {(gap / 1000).toFixed(3)} in ({(gapMm).toFixed(2)} mm)</label>
+          <label className="text-sm font-medium">
+            {t.simulator.airGapLabel}: {(gap / 1000).toFixed(3)} in ({gapMm.toFixed(2)} mm)
+          </label>
           <Slider value={[gap]} onValueChange={(v) => setGap(v[0])} min={50} max={300} step={5} className="mt-2" />
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>0.050 in (close, pulsing)</span>
-            <span>0.300 in (loose, weak)</span>
+            <span>0.050 in</span>
+            <span>0.300 in</span>
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-medium">Magnet grade: N{magnetGrade}</label>
+          <label className="text-sm font-medium">{t.simulator.magnetGradeLabel}: N{magnetGrade}</label>
           <Slider value={[magnetGrade]} onValueChange={(v) => setMagnetGrade(v[0])} min={35} max={55} step={1} className="mt-2" />
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>N35 (weaker)</span>
-            <span>N55 (strongest)</span>
+            <span>N35</span>
+            <span>N55</span>
           </div>
         </div>
 
         <Card className="bg-slate-50">
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <Gauge className="h-4 w-4 text-red-500" /> Estimated Force Output
+              <Gauge className="h-4 w-4 text-red-500" /> {t.simulator.forceOutputTitle}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-2 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Net thrust (lbf)</span>
+              <span className="text-muted-foreground">{t.simulator.netThrust}</span>
               <span className="font-bold text-emerald-600">{forceNet.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Peak pulsation (lbf)</span>
+              <span className="text-muted-foreground">{t.simulator.peakPulsation}</span>
               <span className="font-bold text-amber-600">{forcePulse.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Smoothness index</span>
+              <span className="text-muted-foreground">{t.simulator.smoothness}</span>
               <span className="font-bold" style={{ color: smoothness > 75 ? "#16a34a" : smoothness > 50 ? "#d97706" : "#dc2626" }}>
                 {smoothness.toFixed(0)}%
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Magnet remanence Br</span>
+              <span className="text-muted-foreground">{t.simulator.magnetRemanence}</span>
               <span className="font-bold">{Br.toFixed(2)} T</span>
             </div>
           </CardContent>
@@ -551,56 +609,64 @@ function AirGapSimulator() {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-base flex items-center gap-2">
-              <Microscope className="h-4 w-4 text-blue-500" /> Trade-off Visualization
+              <Microscope className="h-4 w-4 text-blue-500" /> {t.simulator.chartTitle}
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <ForceChart gap={gap} magnetGrade={magnetGrade} />
-            <p className="text-xs text-muted-foreground mt-3">
-              Blue = net thrust vs air gap; red = pulsation amplitude. The patent recommends an air gap around 0.125 in (3.18 mm) — close to the "knee" where thrust is still high but pulsation begins to drop off.
-            </p>
+            <ForceChart gap={gap} magnetGrade={magnetGrade} t={t} />
+            <p className="text-xs text-muted-foreground mt-3">{t.simulator.chartDesc}</p>
           </CardContent>
         </Card>
 
         <Alert>
           <Lightbulb className="h-4 w-4" />
-          <AlertTitle>Optimization Tip</AlertTitle>
-          <AlertDescription>
-            For your current settings: {smoothness > 75 ? "Excellent smoothness — keep current gap." : smoothness > 50 ? "Acceptable; consider widening gap slightly to reduce pulsation." : "Pulsation is high — widen the gap by 0.020 in or add a second staggered armature magnet."}
-          </AlertDescription>
+          <AlertTitle>{t.simulator.optimizationTitle}</AlertTitle>
+          <AlertDescription>{optMessage}</AlertDescription>
         </Alert>
       </div>
     </div>
   );
 }
 
-function ForceChart({ gap, magnetGrade }: { gap: number; magnetGrade: number }) {
+function ForceChart({ gap, magnetGrade, t }: { gap: number; magnetGrade: number; t: UIStrings }) {
   const w = 320;
   const h = 160;
-  const points: { x: number; netF: number; pulse: number }[] = [];
-  for (let g = 50; g <= 300; g += 5) {
-    const Br = 1.28 + ((magnetGrade - 42) / 8) * 0.05;
-    const k = 0.05;
-    const gapMm = g * 0.0254;
-    const netF = k * Br * Br * Math.exp(-gapMm / 5) * 100;
-    const pulse = 0.4 * netF * Math.exp(-Math.abs(gapMm - 3) / 6);
-    points.push({ x: ((g - 50) / 250) * w, netF, pulse });
-  }
+  // Compute deterministic, rounded points
+  const points = useMemo(() => {
+    const arr: { x: number; netF: number; pulse: number }[] = [];
+    for (let g = 50; g <= 300; g += 5) {
+      const Br = 1.28 + ((magnetGrade - 42) / 8) * 0.05;
+      const k = 0.05;
+      const gapMm = g * 0.0254;
+      const netF = k * Br * Br * Math.exp(-gapMm / 5) * 100;
+      const pulse = 0.4 * netF * Math.exp(-Math.abs(gapMm - 3) / 6);
+      arr.push({
+        x: round(((g - 50) / 250) * w, 2),
+        netF: round(netF, 4),
+        pulse: round(pulse, 4),
+      });
+    }
+    return arr;
+  }, [magnetGrade]);
+
   const maxF = Math.max(...points.map((p) => p.netF));
-  const netPath = points.map((p) => `${p.x},${h - (p.netF / maxF) * h * 0.9}`).join(" ");
-  const pulsePath = points.map((p) => `${p.x},${h - (p.pulse / maxF) * h * 0.9}`).join(" ");
-  const cursorX = ((gap - 50) / 250) * w;
+  const netPath = points.map((p) => `${p.x},${round(h - (p.netF / maxF) * h * 0.9, 2)}`).join(" ");
+  const pulsePath = points.map((p) => `${p.x},${round(h - (p.pulse / maxF) * h * 0.9, 2)}`).join(" ");
+  const cursorX = round(((gap - 50) / 250) * w, 2);
+  // Find nearest point's netF y for the cursor circle
+  const nearestPoint = points.reduce((best, p) =>
+    Math.abs(p.x - cursorX) < Math.abs(best.x - cursorX) ? p : best
+  );
+  const cursorY = round(h - (nearestPoint.netF / maxF) * h * 0.9, 2);
 
   return (
     <svg viewBox={`0 0 ${w + 30} ${h + 30}`} className="w-full h-auto">
-      <text x={5} y={12} className="text-[9px] fill-slate-500">Force (lbf)</text>
-      <text x={w} y={h + 18} className="text-[9px] fill-slate-500" textAnchor="end">Air gap (mils)</text>
+      <text x={5} y={12} className="text-[9px] fill-slate-500">{t.simulator.forceAxis}</text>
+      <text x={w} y={h + 18} className="text-[9px] fill-slate-500" textAnchor="end">{t.simulator.gapAxis}</text>
 
-      {/* Y axis grid */}
-      {[0.25, 0.5, 0.75].map((t) => (
-        <line key={t} x1="0" y1={h - h * 0.9 * t} x2={w} y2={h - h * 0.9 * t} stroke="#e2e8f0" strokeWidth="0.5" />
+      {[0.25, 0.5, 0.75].map((tt) => (
+        <line key={tt} x1="0" y1={round(h - h * 0.9 * tt, 2)} x2={w} y2={round(h - h * 0.9 * tt, 2)} stroke="#e2e8f0" strokeWidth="0.5" />
       ))}
-      {/* X axis labels */}
       <text x="0" y={h + 12} className="text-[8px] fill-slate-400">50</text>
       <text x={w / 2} y={h + 12} className="text-[8px] fill-slate-400" textAnchor="middle">175</text>
       <text x={w} y={h + 12} className="text-[8px] fill-slate-400" textAnchor="end">300</text>
@@ -608,25 +674,24 @@ function ForceChart({ gap, magnetGrade }: { gap: number; magnetGrade: number }) 
       <polyline points={netPath} fill="none" stroke="#3b82f6" strokeWidth="2" />
       <polyline points={pulsePath} fill="none" stroke="#dc2626" strokeWidth="1.5" strokeDasharray="3,2" />
 
-      {/* Cursor */}
       <line x1={cursorX} y1="0" x2={cursorX} y2={h} stroke="#0f172a" strokeWidth="1" strokeDasharray="2,2" />
-      <circle cx={cursorX} cy={h - (points.find((p) => Math.abs(p.x - cursorX) < 1)?.netF || 0) / maxF * h * 0.9} r="4" fill="#3b82f6" stroke="white" strokeWidth="1.5" />
+      <circle cx={cursorX} cy={cursorY} r="4" fill="#3b82f6" stroke="white" strokeWidth="1.5" />
 
       {/* Legend */}
       <g transform="translate(40, 8)">
         <line x1="0" y1="0" x2="14" y2="0" stroke="#3b82f6" strokeWidth="2" />
-        <text x="18" y="4" className="text-[9px] fill-slate-700">Net thrust</text>
+        <text x="18" y="4" className="text-[9px] fill-slate-700">{t.simulator.legendNet}</text>
         <line x1="80" y1="0" x2="94" y2="0" stroke="#dc2626" strokeWidth="1.5" strokeDasharray="3,2" />
-        <text x="98" y="4" className="text-[9px] fill-slate-700">Pulsation</text>
+        <text x="98" y="4" className="text-[9px] fill-slate-700">{t.simulator.legendPulse}</text>
       </g>
     </svg>
   );
 }
 
 // ============================================================
-// THEORY DIAGRAM (electron spin / superconductor analogy)
+// THEORY DIAGRAM
 // ============================================================
-function TheoryDiagram() {
+function TheoryDiagram({ t }: { t: UIStrings }) {
   return (
     <svg viewBox="0 0 540 240" className="w-full h-auto rounded-xl border bg-slate-50">
       <defs>
@@ -639,59 +704,48 @@ function TheoryDiagram() {
         </radialGradient>
       </defs>
 
-      {/* Title */}
       <text x="270" y="20" textAnchor="middle" className="text-xs fill-slate-700 font-bold">
-        Unpaired Electron Spins in a Ferromagnet → Source of the Permanent Magnetic Field
+        {t.theory.diagramCaption}
       </text>
 
-      {/* Atom 1 */}
+      {/* Atom */}
       <g transform="translate(100, 130)">
         <circle r="22" fill="url(#atomGrad)" />
         <text textAnchor="middle" y="4" className="text-[10px] fill-white font-bold">Fe</text>
-        {/* Spinning electrons (orbits) */}
-        <ellipse rx="36" ry="14" fill="none" stroke="#94a3b8" strokeWidth="0.6" transform="rotate(0)" />
+        <ellipse rx="36" ry="14" fill="none" stroke="#94a3b8" strokeWidth="0.6" />
         <ellipse rx="36" ry="14" fill="none" stroke="#94a3b8" strokeWidth="0.6" transform="rotate(60)" />
         <ellipse rx="36" ry="14" fill="none" stroke="#94a3b8" strokeWidth="0.6" transform="rotate(120)" />
-        {/* Electron with spin arrow */}
         <circle cx="36" cy="0" r="4" fill="#2563eb" />
         <text x="44" y="-2" className="text-[9px] fill-blue-700 font-bold">e⁻</text>
         <path d="M 36 0 q 8 -4 6 -12" fill="none" stroke="#dc2626" strokeWidth="1.5" markerEnd="url(#arrowT)" />
-        <text x="50" y="-12" className="text-[9px] fill-red-600 font-bold">spin</text>
+        <text x="50" y="-12" className="text-[9px] fill-red-600 font-bold">
+          {t === stringsByLang.en ? "spin" : "ספין"}
+        </text>
       </g>
 
-      {/* Arrow → magnetic field */}
       <line x1="170" y1="130" x2="220" y2="130" stroke="#475569" strokeWidth="2" markerEnd="url(#arrowT)" />
-      <text x="195" y="125" textAnchor="middle" className="text-[9px] fill-slate-600 font-medium">aligned spins</text>
+      <text x="195" y="125" textAnchor="middle" className="text-[9px] fill-slate-600 font-medium">{t.theory.aligned}</text>
 
-      {/* Magnetic field representation */}
+      {/* Bar magnet */}
       <g transform="translate(280, 130)">
-        {/* Bar magnet */}
         <rect x="0" y="-12" width="80" height="24" rx="2" fill="url(#atomGrad)" />
         <text x="20" y="3" textAnchor="middle" className="text-[10px] fill-white font-bold">N</text>
         <text x="60" y="3" textAnchor="middle" className="text-[10px] fill-white font-bold">S</text>
-        {/* Field lines */}
         <path d="M 20 -12 C 10 -40, 70 -40, 60 -12" fill="none" stroke="#dc2626" strokeWidth="0.8" />
         <path d="M 25 -12 C 18 -32, 62 -32, 55 -12" fill="none" stroke="#dc2626" strokeWidth="0.8" />
         <path d="M 20 12 C 10 40, 70 40, 60 12" fill="none" stroke="#dc2626" strokeWidth="0.8" />
         <path d="M 25 12 C 18 32, 62 32, 55 12" fill="none" stroke="#dc2626" strokeWidth="0.8" />
       </g>
 
-      {/* Arrow → usable force */}
       <line x1="370" y1="130" x2="420" y2="130" stroke="#475569" strokeWidth="2" markerEnd="url(#arrowT)" />
-      <text x="395" y="125" textAnchor="middle" className="text-[9px] fill-slate-600 font-medium">concentrated field</text>
+      <text x="395" y="125" textAnchor="middle" className="text-[9px] fill-slate-600 font-medium">{t.theory.concentrated}</text>
 
       {/* Force output */}
       <g transform="translate(430, 130)">
         <rect x="0" y="-20" width="100" height="40" rx="6" fill="#dcfce7" stroke="#16a34a" strokeWidth="1.5" />
-        <text x="50" y="-4" textAnchor="middle" className="text-[10px] fill-green-800 font-bold">Motive Force</text>
-        <text x="50" y="10" textAnchor="middle" className="text-[9px] fill-green-700">No electron flow</text>
+        <text x="50" y="-4" textAnchor="middle" className="text-[10px] fill-green-800 font-bold">{t.theory.motive}</text>
+        <text x="50" y="10" textAnchor="middle" className="text-[9px] fill-green-700">{t.theory.noElectronFlow}</text>
       </g>
-
-      {/* Caption */}
-      <text x="270" y="225" textAnchor="middle" className="text-[10px] fill-slate-600 font-medium">
-        In a ferromagnet, unpaired electron spins align and create a continuous B-field. Johnson's motor geometry
-        converts this static field into a unidirectional thrust.
-      </text>
     </svg>
   );
 }
@@ -700,6 +754,9 @@ function TheoryDiagram() {
 // MAIN PAGE
 // ============================================================
 export default function Home() {
+  const [lang, setLang] = useLanguage();
+  const t = stringsByLang[lang];
+
   const [activeFilter, setActiveFilter] = useState<"all" | BomItem["category"]>("all");
   const [bomSearch, setBomSearch] = useState("");
   const [completedLinear, setCompletedLinear] = useState<Set<string>>(new Set());
@@ -733,9 +790,23 @@ export default function Home() {
     setSet(next);
   };
 
-  const linearProgress = (completedLinear.size / (linearBuildSteps.length * 4)) * 100; // *4 checks per step
+  const linearProgress = (completedLinear.size / (linearBuildSteps.length * 4)) * 100;
   const rotaryProgress = (completedRotary.size / (rotaryBuildSteps.length * 4)) * 100;
   const bomProgress = (completedBom.size / bomItems.length) * 100;
+
+  // Section metadata (icon + label key in nav)
+  const sectionsMeta = [
+    { id: "overview", label: t.nav.overview, Icon: FileText },
+    { id: "theory", label: t.nav.theory, Icon: BookOpen },
+    { id: "bom", label: t.nav.bom, Icon: Boxes },
+    { id: "tools", label: t.nav.tools, Icon: Wrench },
+    { id: "linear", label: t.nav.linear, Icon: ArrowLeftRight },
+    { id: "rotary", label: t.nav.rotary, Icon: RotateCw },
+    { id: "simulator", label: t.nav.simulator, Icon: Gauge },
+    { id: "safety", label: t.nav.safety, Icon: ShieldAlert },
+    { id: "claims", label: t.nav.claims, Icon: ListChecks },
+    { id: "troubleshoot", label: t.nav.troubleshoot, Icon: TriangleAlert },
+  ];
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-50 to-slate-100">
@@ -747,13 +818,14 @@ export default function Home() {
               <Magnet className="h-5 w-5" />
             </div>
             <div>
-              <h1 className="text-sm font-bold leading-tight">Permanent Magnet Motor</h1>
-              <p className="text-[11px] text-muted-foreground leading-tight">US 4,151,431 — Engineer's Build Guide</p>
+              <h1 className="text-sm font-bold leading-tight">{t.headerTitle}</h1>
+              <p className="text-[11px] text-muted-foreground leading-tight">{t.headerSubtitle}</p>
             </div>
           </div>
-          <nav className="hidden lg:flex items-center gap-1">
-            {sections.map((s) => {
-              const Icon = s.icon;
+
+          {/* Desktop nav */}
+          <nav className="hidden lg:flex items-center gap-1 flex-1 justify-center">
+            {sectionsMeta.map((s) => {
               const active = activeSection === s.id;
               return (
                 <button
@@ -763,22 +835,36 @@ export default function Home() {
                     active ? "bg-slate-900 text-white" : "text-slate-600 hover:bg-slate-100"
                   }`}
                 >
-                  <Icon className="h-3.5 w-3.5" />
+                  <s.Icon className="h-3.5 w-3.5" />
                   {s.label}
                 </button>
               );
             })}
           </nav>
-          <div className="lg:hidden">
-            <select
-              onChange={(e) => scrollTo(e.target.value)}
-              className="text-xs border rounded px-2 py-1"
-              value={activeSection}
+
+          {/* Right: language toggle */}
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => setLang(lang === "en" ? "he" : "en")}
+              className="text-xs gap-1.5"
             >
-              {sections.map((s) => (
-                <option key={s.id} value={s.id}>{s.label}</option>
-              ))}
-            </select>
+              <Languages className="h-3.5 w-3.5" />
+              {t.langToggle}
+            </Button>
+            <div className="lg:hidden">
+              <select
+                onChange={(e) => scrollTo(e.target.value)}
+                className="text-xs border rounded px-2 py-1 bg-white"
+                value={activeSection}
+                aria-label="Section navigation"
+              >
+                {sectionsMeta.map((s) => (
+                  <option key={s.id} value={s.id}>{s.label}</option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </header>
@@ -788,41 +874,39 @@ export default function Home() {
         <div className="grid lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-6">
             <div>
-              <Badge className="mb-3" variant="secondary">Patent {patentInfo.number}</Badge>
+              <Badge className="mb-3" variant="secondary">{t.overview.badge}</Badge>
               <h2 className="text-3xl md:text-4xl font-bold tracking-tight">
-                Build a{" "}
+                {t.overview.titleLead}{" "}
                 <span className="bg-gradient-to-r from-red-600 to-slate-900 bg-clip-text text-transparent">
-                  Permanent Magnet Motor
+                  {t.overview.titleHighlight}
                 </span>
               </h2>
-              <p className="text-lg text-muted-foreground mt-3">
-                A complete, interactive engineering plan derived directly from Howard R. Johnson's 1979 patent — covering theory, materials, fabrication, assembly, tuning, and operation. Every step, every part, every dimension you need.
-              </p>
+              <p className="text-lg text-muted-foreground mt-3">{t.overview.intro}</p>
             </div>
 
             <div className="grid sm:grid-cols-2 gap-3">
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" /> Patent Facts</CardTitle>
+                  <CardTitle className="text-base flex items-center gap-2"><FileText className="h-4 w-4" /> {t.overview.factsCard}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-1.5 text-sm">
-                  <div className="flex justify-between"><span className="text-muted-foreground">Number</span><span className="font-medium">{patentInfo.number}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Inventor</span><span className="font-medium">H. R. Johnson</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Filed</span><span className="font-medium">{patentInfo.filed}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Issued</span><span className="font-medium">{patentInfo.issued}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Appl. No.</span><span className="font-medium">{patentInfo.applNo}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Claims</span><span className="font-medium">{patentInfo.claims}</span></div>
-                  <div className="flex justify-between"><span className="text-muted-foreground">Drawings</span><span className="font-medium">{patentInfo.drawings}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">{t.overview.number}</span><span className="font-medium">{patentInfo.number}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">{t.overview.inventor}</span><span className="font-medium">H. R. Johnson</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">{t.overview.filed}</span><span className="font-medium">{patentInfo.filed}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">{t.overview.issued}</span><span className="font-medium">{patentInfo.issued}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">{t.overview.applNo}</span><span className="font-medium">{patentInfo.applNo}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">{t.overview.claimsLabel}</span><span className="font-medium">{patentInfo.claims}</span></div>
+                  <div className="flex justify-between"><span className="text-muted-foreground">{t.overview.drawings}</span><span className="font-medium">{patentInfo.drawings}</span></div>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2"><Cpu className="h-4 w-4" /> Classification</CardTitle>
+                  <CardTitle className="text-base flex items-center gap-2"><Cpu className="h-4 w-4" /> {t.overview.classificationCard}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-2 text-sm">
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">International (Int. Cl.)</p>
+                    <p className="text-xs text-muted-foreground mb-1">{t.overview.intlClass}</p>
                     <div className="flex flex-wrap gap-1">
                       {patentInfo.intClass.map((c) => (
                         <Badge key={c} variant="outline" className="text-[10px]">{c}</Badge>
@@ -830,7 +914,7 @@ export default function Home() {
                     </div>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">U.S. Classification</p>
+                    <p className="text-xs text-muted-foreground mb-1">{t.overview.usClassLabel}</p>
                     <div className="flex flex-wrap gap-1">
                       {patentInfo.usClass.map((c) => (
                         <Badge key={c} variant="outline" className="text-[10px]">{c}</Badge>
@@ -839,11 +923,11 @@ export default function Home() {
                   </div>
                   <div className="pt-2 border-t">
                     <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Examiner</span>
+                      <span className="text-muted-foreground">{t.overview.examiner}</span>
                       <span>{patentInfo.examiner}</span>
                     </div>
                     <div className="flex justify-between text-xs">
-                      <span className="text-muted-foreground">Attorney</span>
+                      <span className="text-muted-foreground">{t.overview.attorney}</span>
                       <span>{patentInfo.attorney}</span>
                     </div>
                   </div>
@@ -853,31 +937,23 @@ export default function Home() {
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-lg flex items-center gap-2"><Info className="h-5 w-5" /> What This Motor Does</CardTitle>
-                <CardDescription>
-                  The core inventive concept in one paragraph
-                </CardDescription>
+                <CardTitle className="text-lg flex items-center gap-2"><Info className="h-5 w-5" /> {t.overview.whatTitle}</CardTitle>
+                <CardDescription>{t.overview.whatSubtitle}</CardDescription>
               </CardHeader>
               <CardContent className="text-sm leading-relaxed space-y-3">
-                <p>
-                  The Johnson permanent magnet motor produces relative motion between an armature and a stator using <strong>only static magnetic fields</strong> — no electrical current, no commutator, no brushes. The unpaired electron spins within permanent magnets are treated as a continuous source of motive power, analogous to a room-temperature superconductor.
-                </p>
-                <p>
-                  The breakthrough is geometric. The armature magnet's length is set to be slightly greater than the combined width of <strong>two stator magnets plus one inter-magnet gap</strong>. At every position along the track, the leading pole of the armature is repelled by an adjacent like pole while the trailing pole is attracted by an opposite pole. The resultant force vector always points in the same direction — producing continuous motion along the track.
-                </p>
-                <p>
-                  Both a <strong>linear</strong> embodiment and a <strong>rotary</strong> embodiment are described. The rotary version includes a threaded shaft that allows the builder to axially displace the armature and thereby regulate the rotational speed — a fully mechanical throttle with zero electrical components.
-                </p>
+                <p>{t.overview.para1}</p>
+                <p>{t.overview.para2}</p>
+                <p>{t.overview.para3}</p>
               </CardContent>
             </Card>
           </div>
 
-          {/* Right column: prototype dimensions */}
+          {/* Right column */}
           <div className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2"><Ruler className="h-4 w-4" /> Prototype Dimensions</CardTitle>
-                <CardDescription>From the patent's working example</CardDescription>
+                <CardTitle className="text-base flex items-center gap-2"><Ruler className="h-4 w-4" /> {t.overview.dimensionsTitle}</CardTitle>
+                <CardDescription>{t.overview.dimensionsSubtitle}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-2 text-xs">
                 {prototypeDimensions.map((d) => (
@@ -894,46 +970,25 @@ export default function Home() {
 
             <Card className="bg-gradient-to-br from-slate-900 to-slate-700 text-white border-0">
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2 text-white"><Beaker className="h-4 w-4" /> Key Insight</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2 text-white"><Beaker className="h-4 w-4" /> {t.overview.keyInsightTitle}</CardTitle>
               </CardHeader>
               <CardContent className="text-xs space-y-2 text-slate-100">
-                <p>
-                  The armature length must be slightly <strong>longer</strong> than 2 stator widths + 1 gap. This is the entire trick.
-                </p>
-                <p>
-                  Reversing the armature magnet (N↔S) reverses the direction of motion. No electrical switching required.
-                </p>
-                <p className="text-slate-300 italic text-[10px]">
-                  Mechanical advantage claimed: greater than 100:1.
-                </p>
+                <p>{t.overview.keyInsightP1}</p>
+                <p>{t.overview.keyInsightP2}</p>
+                <p className="text-slate-300 italic text-[10px]">{t.overview.keyInsightP3}</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle className="text-base flex items-center gap-2"><Eye className="h-4 w-4" /> At a Glance</CardTitle>
+                <CardTitle className="text-base flex items-center gap-2"><Eye className="h-4 w-4" /> {t.overview.glanceTitle}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-xs">
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-red-500" />
-                  <span>2 embodiments (linear + rotary)</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-amber-500" />
-                  <span>~14 build steps total</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-emerald-500" />
-                  <span>19 BOM items</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-blue-500" />
-                  <span>10 workshop tools</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <div className="h-2 w-2 rounded-full bg-purple-500" />
-                  <span>25 patent claims</span>
-                </div>
+                <div className="flex items-center gap-2"><div className="h-2 w-2 rounded-full bg-red-500" /><span>{t.overview.glance1}</span></div>
+                <div className="flex items-center gap-2"><div className="h-2 w-2 rounded-full bg-amber-500" /><span>{t.overview.glance2}</span></div>
+                <div className="flex items-center gap-2"><div className="h-2 w-2 rounded-full bg-emerald-500" /><span>{t.overview.glance3}</span></div>
+                <div className="flex items-center gap-2"><div className="h-2 w-2 rounded-full bg-blue-500" /><span>{t.overview.glance4}</span></div>
+                <div className="flex items-center gap-2"><div className="h-2 w-2 rounded-full bg-purple-500" /><span>{t.overview.glance5}</span></div>
               </CardContent>
             </Card>
           </div>
@@ -942,35 +997,31 @@ export default function Home() {
 
       {/* ===== THEORY ===== */}
       <section id="theory" className="container mx-auto max-w-7xl px-4 py-12 scroll-mt-20">
-        <SectionHeader
-          icon={<BookOpen className="h-5 w-5" />}
-          title="Theory of Operation"
-          subtitle="How static magnetic fields produce continuous thrust — the physics behind the patent"
-        />
+        <SectionHeader icon={<BookOpen className="h-5 w-5" />} title={t.theory.title} subtitle={t.theory.subtitle} />
 
         <div className="grid lg:grid-cols-2 gap-6">
           <Card className="lg:col-span-2">
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2"><Cpu className="h-5 w-5 text-red-500" /> Spin → Field → Force</CardTitle>
-              <CardDescription>The conceptual pipeline behind the invention</CardDescription>
+              <CardTitle className="text-lg flex items-center gap-2"><Cpu className="h-5 w-5 text-red-500" /> {t.theory.diagramTitle}</CardTitle>
+              <CardDescription>{t.theory.diagramCaption}</CardDescription>
             </CardHeader>
             <CardContent>
-              <TheoryDiagram />
+              <TheoryDiagram t={t} />
             </CardContent>
           </Card>
 
-          {theoryPoints.map((t, i) => (
-            <Card key={t.id} className="hover:shadow-md transition-shadow">
+          {theoryPoints.map((tp, i) => (
+            <Card key={tp.id} className="hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="flex items-center gap-3">
                   <div className="h-8 w-8 rounded-lg bg-slate-900 text-white flex items-center justify-center text-sm font-bold">
                     {i + 1}
                   </div>
-                  <CardTitle className="text-base">{t.title}</CardTitle>
+                  <CardTitle className="text-base">{tp.title}</CardTitle>
                 </div>
               </CardHeader>
               <CardContent className="text-sm space-y-3 text-muted-foreground">
-                {t.body.map((para, j) => (
+                {tp.body.map((para, j) => (
                   <p key={j} className="leading-relaxed">{para}</p>
                 ))}
               </CardContent>
@@ -981,22 +1032,16 @@ export default function Home() {
 
       {/* ===== BOM ===== */}
       <section id="bom" className="container mx-auto max-w-7xl px-4 py-12 scroll-mt-20 bg-white/60 rounded-xl">
-        <SectionHeader
-          icon={<Boxes className="h-5 w-5" />}
-          title="Bill of Materials"
-          subtitle="Every part you need — magnets, structural, hardware, and tooling"
-        />
+        <SectionHeader icon={<Boxes className="h-5 w-5" />} title={t.bom.title} subtitle={t.bom.subtitle} />
 
-        {/* Progress */}
         <div className="mb-4">
           <div className="flex justify-between text-xs mb-1">
-            <span className="text-muted-foreground">Acquisition progress</span>
+            <span className="text-muted-foreground">{t.bom.acquisition}</span>
             <span className="font-medium">{completedBom.size} / {bomItems.length}</span>
           </div>
           <Progress value={bomProgress} />
         </div>
 
-        {/* Filters */}
         <div className="flex flex-wrap gap-2 mb-4 items-center">
           {(["all", "magnet", "metal", "structural", "hardware", "tooling"] as const).map((f) => (
             <Button
@@ -1006,14 +1051,14 @@ export default function Home() {
               onClick={() => setActiveFilter(f)}
               className="text-xs"
             >
-              {f === "all" ? "All Categories" : f.charAt(0).toUpperCase() + f.slice(1)}
+              {f === "all" ? t.bom.filters.all : t.bom.filters[f]}
             </Button>
           ))}
           <div className="flex-1 min-w-[200px] max-w-xs ml-auto">
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search parts, specs, sources..."
+                placeholder={t.bom.searchPlaceholder}
                 value={bomSearch}
                 onChange={(e) => setBomSearch(e.target.value)}
                 className="pl-8 h-9"
@@ -1022,19 +1067,18 @@ export default function Home() {
           </div>
         </div>
 
-        {/* BOM table */}
         <div className="overflow-x-auto rounded-lg border">
           <table className="w-full text-sm">
             <thead className="bg-slate-100 text-xs uppercase">
               <tr>
                 <th className="p-3 text-left">✓</th>
-                <th className="p-3 text-left">ID</th>
-                <th className="p-3 text-left">Part</th>
-                <th className="p-3 text-left">Specification</th>
-                <th className="p-3 text-left">Qty</th>
-                <th className="p-3 text-left">Purpose</th>
-                <th className="p-3 text-left">Source</th>
-                <th className="p-3 text-left">Type</th>
+                <th className="p-3 text-left">{t.bom.cols.id}</th>
+                <th className="p-3 text-left">{t.bom.cols.part}</th>
+                <th className="p-3 text-left">{t.bom.cols.spec}</th>
+                <th className="p-3 text-left">{t.bom.cols.qty}</th>
+                <th className="p-3 text-left">{t.bom.cols.purpose}</th>
+                <th className="p-3 text-left">{t.bom.cols.source}</th>
+                <th className="p-3 text-left">{t.bom.cols.type}</th>
               </tr>
             </thead>
             <tbody>
@@ -1060,10 +1104,10 @@ export default function Home() {
                       b.category === "hardware" ? "border-emerald-300 text-emerald-700" :
                       "border-purple-300 text-purple-700"
                     }`}>
-                      {b.category}
+                      {t.bom.filters[b.category]}
                     </Badge>
                     {b.critical && (
-                      <Badge variant="destructive" className="text-[10px] ml-1">critical</Badge>
+                      <Badge variant="destructive" className="text-[10px] ms-1">{t.bom.critical}</Badge>
                     )}
                   </td>
                 </tr>
@@ -1072,34 +1116,37 @@ export default function Home() {
           </table>
         </div>
         <p className="text-xs text-muted-foreground mt-2">
-          Showing {filteredBom.length} of {bomItems.length} items. Items marked <Badge variant="destructive" className="text-[10px]">critical</Badge> cannot be substituted without re-validating the design.
+          {t.bom.showing} {filteredBom.length} {t.bom.of} {bomItems.length}.
+          {t === stringsByLang.en
+            ? " Items marked "
+            : " פריטים המסומנים "}
+          <Badge variant="destructive" className="text-[10px] mx-1">{t.bom.critical}</Badge>
+          {t === stringsByLang.en
+            ? "cannot be substituted without re-validating the design."
+            : "אינם ניתנים להחלפה ללא אימות מחדש של התכנון."}
         </p>
       </section>
 
       {/* ===== TOOLS ===== */}
       <section id="tools" className="container mx-auto max-w-7xl px-4 py-12 scroll-mt-20">
-        <SectionHeader
-          icon={<Wrench className="h-5 w-5" />}
-          title="Tools & Workshop Setup"
-          subtitle="What your workshop needs before you start cutting metal"
-        />
+        <SectionHeader icon={<Wrench className="h-5 w-5" />} title={t.tools.title} subtitle={t.tools.subtitle} />
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {workshopTools.map((t) => (
-            <Card key={t.id} className="hover:shadow-md transition-shadow">
+          {workshopTools.map((tool) => (
+            <Card key={tool.id} className="hover:shadow-md transition-shadow">
               <CardContent className="pt-5">
                 <div className="flex items-start gap-3">
                   <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-                    t.required ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-600"
+                    tool.required ? "bg-red-100 text-red-700" : "bg-slate-100 text-slate-600"
                   }`}>
                     <Hammer className="h-5 w-5" />
                   </div>
                   <div className="flex-1">
-                    <p className="font-medium text-sm">{t.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1">{t.purpose}</p>
-                    {t.required ? (
-                      <Badge variant="destructive" className="text-[10px] mt-2">Required</Badge>
+                    <p className="font-medium text-sm">{tool.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">{tool.purpose}</p>
+                    {tool.required ? (
+                      <Badge variant="destructive" className="text-[10px] mt-2">{t.tools.required}</Badge>
                     ) : (
-                      <Badge variant="secondary" className="text-[10px] mt-2">Optional / Nice-to-have</Badge>
+                      <Badge variant="secondary" className="text-[10px] mt-2">{t.tools.optional}</Badge>
                     )}
                   </div>
                 </div>
@@ -1111,39 +1158,33 @@ export default function Home() {
 
       {/* ===== LINEAR BUILD ===== */}
       <section id="linear" className="container mx-auto max-w-7xl px-4 py-12 scroll-mt-20 bg-white/60 rounded-xl">
-        <SectionHeader
-          icon={<ArrowLeftRight className="h-5 w-5" />}
-          title="Linear Embodiment — Build Guide"
-          subtitle="7 phases from raw magnet stock to a moving prototype"
-        />
+        <SectionHeader icon={<ArrowLeftRight className="h-5 w-5" />} title={t.build.linearTitle} subtitle={t.build.linearSubtitle} />
 
-        {/* Interactive diagram */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2"><Eye className="h-5 w-5" /> Interactive Geometry</CardTitle>
-            <CardDescription>Drag the slider (or press Auto-run) to see how the armature traverses the stator track</CardDescription>
+            <CardTitle className="text-lg flex items-center gap-2"><Eye className="h-5 w-5" /> {t.build.interactiveTitle}</CardTitle>
+            <CardDescription>{t.build.linearInteractDesc}</CardDescription>
           </CardHeader>
           <CardContent>
-            <LinearMotorDiagram />
+            <LinearMotorDiagram t={t} />
           </CardContent>
         </Card>
 
-        {/* Progress */}
         <div className="mb-6">
           <div className="flex justify-between text-xs mb-1">
-            <span className="text-muted-foreground">Build checklist progress</span>
-            <span className="font-medium">{completedLinear.size} / {linearBuildSteps.length * 4} checks</span>
+            <span className="text-muted-foreground">{t.build.checklistProgress}</span>
+            <span className="font-medium">{completedLinear.size} / {linearBuildSteps.length * 4} {t.build.checks}</span>
           </div>
           <Progress value={linearProgress} />
         </div>
 
-        {/* Steps */}
         <div className="space-y-4">
           {linearBuildSteps.map((step, i) => (
             <BuildStepCard
               key={step.id}
               step={step}
               index={i}
+              t={t}
               completed={completedLinear}
               onToggle={(checkId) => toggle(completedLinear, setCompletedLinear, checkId)}
             />
@@ -1153,26 +1194,22 @@ export default function Home() {
 
       {/* ===== ROTARY BUILD ===== */}
       <section id="rotary" className="container mx-auto max-w-7xl px-4 py-12 scroll-mt-20">
-        <SectionHeader
-          icon={<RotateCw className="h-5 w-5" />}
-          title="Rotary Embodiment — Build Guide"
-          subtitle="7 phases for the circular motor with speed regulator"
-        />
+        <SectionHeader icon={<RotateCw className="h-5 w-5" />} title={t.build.rotaryTitle} subtitle={t.build.rotarySubtitle} />
 
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2"><Eye className="h-5 w-5" /> Interactive Geometry</CardTitle>
-            <CardDescription>Watch the 3 staggered armature magnets rotate around 12 stator magnets — adjust axial engagement to change speed</CardDescription>
+            <CardTitle className="text-lg flex items-center gap-2"><Eye className="h-5 w-5" /> {t.build.interactiveTitle}</CardTitle>
+            <CardDescription>{t.build.rotaryInteractDesc}</CardDescription>
           </CardHeader>
           <CardContent>
-            <RotaryMotorDiagram />
+            <RotaryMotorDiagram t={t} />
           </CardContent>
         </Card>
 
         <div className="mb-6">
           <div className="flex justify-between text-xs mb-1">
-            <span className="text-muted-foreground">Build checklist progress</span>
-            <span className="font-medium">{completedRotary.size} / {rotaryBuildSteps.length * 4} checks</span>
+            <span className="text-muted-foreground">{t.build.checklistProgress}</span>
+            <span className="font-medium">{completedRotary.size} / {rotaryBuildSteps.length * 4} {t.build.checks}</span>
           </div>
           <Progress value={rotaryProgress} />
         </div>
@@ -1183,6 +1220,7 @@ export default function Home() {
               key={step.id}
               step={step}
               index={i}
+              t={t}
               completed={completedRotary}
               onToggle={(checkId) => toggle(completedRotary, setCompletedRotary, checkId)}
             />
@@ -1193,24 +1231,22 @@ export default function Home() {
       {/* ===== SIMULATOR ===== */}
       <section id="simulator" className="container mx-auto max-w-7xl px-4 py-12 scroll-mt-20 bg-slate-900 text-white rounded-xl">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold flex items-center gap-2"><Gauge className="h-6 w-6 text-red-400" /> Force vs Air-Gap Simulator</h2>
-          <p className="text-slate-300 mt-1">A first-order engineering model to help you choose the right air gap and magnet grade for your build</p>
+          <h2 className="text-2xl font-bold flex items-center gap-2"><Gauge className="h-6 w-6 text-red-400" /> {t.simulator.title}</h2>
+          <p className="text-slate-300 mt-1">{t.simulator.subtitle}</p>
         </div>
         <div className="bg-white text-slate-900 rounded-xl p-6">
-          <AirGapSimulator />
+          <AirGapSimulator t={t} />
         </div>
         <p className="text-xs text-slate-400 mt-3">
-          Model: F = k · Br² · exp(−gap / 5mm). Pulsation approximated as a Gaussian peak around the optimal gap. Values are illustrative — your actual build will differ based on magnet quality, geometry tolerances, and surface finish.
+          {t === stringsByLang.en
+            ? "Model: F = k · Br² · exp(−gap / 5mm). Pulsation approximated as a Gaussian peak around the optimal gap. Values are illustrative — your actual build will differ based on magnet quality, geometry tolerances, and surface finish."
+            : "מודל: F = k · Br² · exp(−gap / 5mm). פעימה מקורבת כפסגת גאוסיאנית סביב הרווח האופטימלי. הערכים להמחשה — הבנייה בפועל תשתנה בהתאם לאיכות המגנט, טולרנסי הגיאומטריה, וגימור השטח."}
         </p>
       </section>
 
       {/* ===== SAFETY ===== */}
       <section id="safety" className="container mx-auto max-w-7xl px-4 py-12 scroll-mt-20">
-        <SectionHeader
-          icon={<ShieldAlert className="h-5 w-5" />}
-          title="Safety, Warnings & Engineering Notes"
-          subtitle="Critical information before you handle high-field magnets"
-        />
+        <SectionHeader icon={<ShieldAlert className="h-5 w-5" />} title={t.safety.title} subtitle={t.safety.subtitle} />
         <div className="grid md:grid-cols-2 gap-4">
           {safetyItems.map((s) => {
             const styles = {
@@ -1224,12 +1260,12 @@ export default function Home() {
                 <Icon className={`h-4 w-4 ${styles.iconColor}`} />
                 <AlertTitle className="flex items-center gap-2">
                   {s.title}
-                  <Badge variant="outline" className={`text-[10px] capitalize ${
+                  <Badge variant="outline" className={`text-[10px] ${
                     s.severity === "critical" ? "border-red-400 text-red-700" :
                     s.severity === "caution" ? "border-amber-400 text-amber-700" :
                     "border-slate-400 text-slate-700"
                   }`}>
-                    {s.severity}
+                    {t.safety.severity[s.severity]}
                   </Badge>
                 </AlertTitle>
                 <AlertDescription className="text-sm mt-2">{s.detail}</AlertDescription>
@@ -1241,16 +1277,12 @@ export default function Home() {
 
       {/* ===== CLAIMS ===== */}
       <section id="claims" className="container mx-auto max-w-7xl px-4 py-12 scroll-mt-20 bg-white/60 rounded-xl">
-        <SectionHeader
-          icon={<ListChecks className="h-5 w-5" />}
-          title="Patent Claims — Reference"
-          subtitle="The 25 legal claims that define the invention's scope"
-        />
+        <SectionHeader icon={<ListChecks className="h-5 w-5" />} title={t.claims.title} subtitle={t.claims.subtitle} />
         <div className="mb-4 max-w-md">
           <div className="relative">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              placeholder="Search claims by keyword..."
+              placeholder={t.claims.searchPlaceholder}
               value={claimSearch}
               onChange={(e) => setClaimSearch(e.target.value)}
               className="pl-8"
@@ -1267,15 +1299,15 @@ export default function Home() {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-2">
-                      <Badge variant="outline" className={`text-[10px] capitalize ${
+                      <Badge variant="outline" className={`text-[10px] ${
                         c.type === "apparatus" ? "border-blue-300 text-blue-700" :
                         c.type === "method" ? "border-emerald-300 text-emerald-700" :
                         "border-slate-300 text-slate-700"
-                      }`}>{c.type}</Badge>
+                      }`}>{t.claims.type[c.type]}</Badge>
                       {c.id === 1 || c.id === 14 || c.id === 22 ? (
-                        <Badge variant="default" className="text-[10px]">independent</Badge>
+                        <Badge variant="default" className="text-[10px]">{t.claims.independent}</Badge>
                       ) : (
-                        <Badge variant="secondary" className="text-[10px]">dependent</Badge>
+                        <Badge variant="secondary" className="text-[10px]">{t.claims.dependent}</Badge>
                       )}
                     </div>
                     <p className="text-sm leading-relaxed">{c.text}</p>
@@ -1286,34 +1318,30 @@ export default function Home() {
           ))}
         </div>
         {filteredClaims.length === 0 && (
-          <p className="text-center text-muted-foreground py-8 text-sm">No claims match your search.</p>
+          <p className="text-center text-muted-foreground py-8 text-sm">{t.claims.noResults}</p>
         )}
       </section>
 
       {/* ===== TROUBLESHOOT ===== */}
       <section id="troubleshoot" className="container mx-auto max-w-7xl px-4 py-12 scroll-mt-20">
-        <SectionHeader
-          icon={<TriangleAlert className="h-5 w-5" />}
-          title="Troubleshooting Guide"
-          subtitle="Common failure modes and how to fix them"
-        />
+        <SectionHeader icon={<TriangleAlert className="h-5 w-5" />} title={t.troubleshoot.title} subtitle={t.troubleshoot.subtitle} />
         <div className="grid md:grid-cols-2 gap-4">
-          {troubleshooting.map((t, i) => (
+          {troubleshooting.map((tr, i) => (
             <Card key={i}>
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm flex items-start gap-2">
                   <TriangleAlert className="h-4 w-4 text-amber-500 mt-0.5 flex-shrink-0" />
-                  {t.symptom}
+                  {tr.symptom}
                 </CardTitle>
               </CardHeader>
               <CardContent className="text-sm space-y-2">
                 <div>
-                  <p className="text-xs text-muted-foreground font-medium uppercase">Likely cause</p>
-                  <p className="text-sm">{t.cause}</p>
+                  <p className="text-xs text-muted-foreground font-medium uppercase">{t.troubleshoot.causeLabel}</p>
+                  <p className="text-sm">{tr.cause}</p>
                 </div>
                 <div className="pt-2 border-t">
-                  <p className="text-xs text-emerald-700 font-medium uppercase">Fix</p>
-                  <p className="text-sm">{t.fix}</p>
+                  <p className="text-xs text-emerald-700 font-medium uppercase">{t.troubleshoot.fixLabel}</p>
+                  <p className="text-sm">{tr.fix}</p>
                 </div>
               </CardContent>
             </Card>
@@ -1327,31 +1355,28 @@ export default function Home() {
           <div className="grid md:grid-cols-3 gap-6 text-sm">
             <div>
               <h3 className="font-bold text-white mb-2 flex items-center gap-2">
-                <Magnet className="h-4 w-4" /> US 4,151,431
+                <Magnet className="h-4 w-4" /> {t.footer.patentInfo}
               </h3>
-              <p className="text-xs text-slate-400">
-                Permanent Magnet Motor — Howard R. Johnson, issued April 24, 1979. Source document: patent specification, claims, and 10 drawing figures.
-              </p>
+              <p className="text-xs text-slate-400">{t.footer.buildInfo}</p>
             </div>
             <div>
-              <h3 className="font-bold text-white mb-2 flex items-center gap-2"><Factory className="h-4 w-4" /> Build Information</h3>
+              <h3 className="font-bold text-white mb-2 flex items-center gap-2"><Factory className="h-4 w-4" /> {t.overview.glanceTitle}</h3>
               <ul className="text-xs text-slate-400 space-y-1">
-                <li>2 embodiments: linear &amp; rotary</li>
-                <li>19 BOM items, 10 workshop tools</li>
-                <li>~14 assembly steps (7 per embodiment)</li>
-                <li>Engineering model included for tuning</li>
+                <li>{t.overview.glance1}</li>
+                <li>{t.overview.glance2}</li>
+                <li>{t.overview.glance3}</li>
+                <li>{t.overview.glance4}</li>
+                <li>{t.overview.glance5}</li>
               </ul>
             </div>
             <div>
-              <h3 className="font-bold text-white mb-2 flex items-center gap-2"><Info className="h-4 w-4" /> Disclaimer</h3>
-              <p className="text-xs text-slate-400">
-                This build guide is a faithful engineering reinterpretation of the patent disclosure. The patent's claim of continuous motive power from permanent magnets alone is not consistent with the second law of thermodynamics and should be treated as an engineering case study in magnetic field manipulation rather than a working free-energy machine.
-              </p>
+              <h3 className="font-bold text-white mb-2 flex items-center gap-2"><Info className="h-4 w-4" /> {t.footer.disclaimerTitle}</h3>
+              <p className="text-xs text-slate-400">{t.footer.disclaimerBody}</p>
             </div>
           </div>
           <div className="mt-6 pt-6 border-t border-slate-800 text-xs text-slate-500 flex justify-between flex-wrap gap-2">
-            <span>Built for engineers, from the patent record.</span>
-            <span>{patentInfo.number} · {patentInfo.issued} · {patentInfo.claims} claims · {patentInfo.drawings} drawings</span>
+            <span>{t.footer.metaLine}</span>
+            <span>{patentInfo.number} · {patentInfo.issued} · {patentInfo.claims} {t === stringsByLang.en ? "claims" : "תביעות"} · {patentInfo.drawings} {t === stringsByLang.en ? "drawings" : "שרטוטים"}</span>
           </div>
         </div>
       </footer>
@@ -1381,24 +1406,24 @@ function SectionHeader({ icon, title, subtitle }: { icon: React.ReactNode; title
 function BuildStepCard({
   step,
   index,
+  t,
   completed,
   onToggle,
 }: {
   step: { id: string; phase: string; title: string; duration: string; description: string; checks: string[]; warning?: string };
   index: number;
+  t: UIStrings;
   completed: Set<string>;
   onToggle: (id: string) => void;
 }) {
   const [expanded, setExpanded] = useState(true);
   const stepChecksCompleted = step.checks.filter((_, i) => completed.has(`${step.id}-${i}`)).length;
   const stepComplete = stepChecksCompleted === step.checks.length;
+  const phaseLabel = t.phases[step.phase as keyof typeof t.phases] ?? step.phase;
 
   return (
     <Card className={`overflow-hidden transition-all ${stepComplete ? "border-emerald-400 bg-emerald-50/40" : ""}`}>
-      <CardHeader
-        className="cursor-pointer pb-3"
-        onClick={() => setExpanded(!expanded)}
-      >
+      <CardHeader className="cursor-pointer pb-3" onClick={() => setExpanded(!expanded)}>
         <div className="flex items-center gap-3">
           <div className={`h-9 w-9 rounded-lg flex items-center justify-center text-sm font-bold flex-shrink-0 ${
             stepComplete ? "bg-emerald-600 text-white" : "bg-slate-900 text-white"
@@ -1407,14 +1432,14 @@ function BuildStepCard({
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className="text-[10px]">{step.phase}</Badge>
+              <Badge variant="outline" className="text-[10px]">{phaseLabel}</Badge>
               <CardTitle className="text-base">{step.title}</CardTitle>
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Est. duration: {step.duration}</p>
+            <p className="text-xs text-muted-foreground mt-1">{t.build.duration}: {step.duration}</p>
           </div>
           <div className="flex items-center gap-3">
             <span className="text-xs text-muted-foreground hidden sm:inline">
-              {stepChecksCompleted}/{step.checks.length} checks
+              {stepChecksCompleted}/{step.checks.length} {t.build.checks}
             </span>
             <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform ${expanded ? "rotate-90" : ""}`} />
           </div>
@@ -1427,13 +1452,13 @@ function BuildStepCard({
           {step.warning && (
             <Alert className="border-amber-300 bg-amber-50">
               <TriangleAlert className="h-4 w-4 text-amber-600" />
-              <AlertTitle className="text-amber-900 text-sm">Warning</AlertTitle>
+              <AlertTitle className="text-amber-900 text-sm">{t.build.warningTitle}</AlertTitle>
               <AlertDescription className="text-amber-800 text-xs">{step.warning}</AlertDescription>
             </Alert>
           )}
 
           <div className="space-y-2">
-            <p className="text-xs font-medium uppercase text-muted-foreground">Verification Checklist</p>
+            <p className="text-xs font-medium uppercase text-muted-foreground">{t.build.verificationTitle}</p>
             {step.checks.map((check, i) => {
               const checkId = `${step.id}-${i}`;
               const isDone = completed.has(checkId);
@@ -1447,9 +1472,7 @@ function BuildStepCard({
                     onCheckedChange={() => onToggle(checkId)}
                     className="mt-0.5"
                   />
-                  <span className={`text-sm ${isDone ? "line-through text-muted-foreground" : ""}`}>
-                    {check}
-                  </span>
+                  <span className={`text-sm ${isDone ? "line-through text-muted-foreground" : ""}`}>{check}</span>
                 </label>
               );
             })}
