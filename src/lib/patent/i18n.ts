@@ -671,6 +671,39 @@ export const stringsByLang: Record<Lang, UIStrings> = {
 };
 
 // ============================================================
+// Variant UI strings — for the design toggle between the
+// original patent and the circular flap variant.
+// ============================================================
+export interface VariantStrings {
+  toggleLabel: string;
+  original: string;
+  originalSubtitle: string;
+  flap: string;
+  flapSubtitle: string;
+}
+
+const variantStringsEn: VariantStrings = {
+  toggleLabel: "Design",
+  original: "Original Patent (US 4,151,431)",
+  originalSubtitle: "Howard R. Johnson's 1979 design — magnet armature + magnet stator",
+  flap: "Circular Flap Variant",
+  flapSubtitle: "Modified design — ferromagnetic disc + 2-3 static side magnets",
+};
+
+const variantStringsHe: VariantStrings = {
+  toggleLabel: "תכנון",
+  original: "הפטנט המקורי (US 4,151,431)",
+  originalSubtitle: "תכנון ג'ונסון מ-1979 — ארמטורה מגנטית + סטטור מגנטי",
+  flap: "וריאנט דיסקה מסתובבת",
+  flapSubtitle: "תכנון מותאם — דיסקה פרומגנטית + 2-3 מגנטי צד סטטיים",
+};
+
+export const variantStringsByLang: Record<Lang, VariantStrings> = {
+  en: variantStringsEn,
+  he: variantStringsHe,
+};
+
+// ============================================================
 // Localized data accessor
 // Returns the appropriate data module (English or Hebrew) for the
 // current language. This is what the page imports to render
@@ -773,3 +806,67 @@ export function detectLanguageFromNavigator(): Lang {
   const acceptHeader = langs.join(",");
   return detectLanguage(acceptHeader);
 }
+
+// ============================================================
+// Localized FLAP VARIANT data accessor
+// Same pattern as dataByLang but for the flap variant module.
+// ============================================================
+import {
+  flapVariantInfo as flapVariantInfoEn,
+  flapTheoryPoints as flapTheoryPointsEn,
+  flapBomItems as flapBomItemsEn,
+  flapWorkshopTools as flapWorkshopToolsEn,
+  flapPrototypeDimensions as flapPrototypeDimensionsEn,
+  flapBuildSteps as flapBuildStepsEn,
+  flapSafetyItems as flapSafetyItemsEn,
+  flapTroubleshooting as flapTroubleshootingEn,
+  flapConfigs as flapConfigsEn,
+} from "./flap-variant";
+import {
+  flapVariantInfoHe,
+  flapTheoryPointsHe,
+  flapBomItemsHe,
+  flapWorkshopToolsHe,
+  flapPrototypeDimensionsHe,
+  flapBuildStepsHe,
+  flapSafetyItemsHe,
+  flapTroubleshootingHe,
+  flapConfigsHe,
+} from "./flap-variant.he";
+
+export interface LocalizedFlapData {
+  flapVariantInfo: typeof flapVariantInfoEn;
+  flapTheoryPoints: typeof flapTheoryPointsEn;
+  flapBomItems: typeof flapBomItemsEn;
+  flapWorkshopTools: typeof flapWorkshopToolsEn;
+  flapPrototypeDimensions: typeof flapPrototypeDimensionsEn;
+  flapBuildSteps: typeof flapBuildStepsEn;
+  flapSafetyItems: typeof flapSafetyItemsEn;
+  flapTroubleshooting: typeof flapTroubleshootingEn;
+  flapConfigs: typeof flapConfigsEn;
+}
+
+export const flapDataByLang: Record<Lang, LocalizedFlapData> = {
+  en: {
+    flapVariantInfo: flapVariantInfoEn,
+    flapTheoryPoints: flapTheoryPointsEn,
+    flapBomItems: flapBomItemsEn,
+    flapWorkshopTools: flapWorkshopToolsEn,
+    flapPrototypeDimensions: flapPrototypeDimensionsEn,
+    flapBuildSteps: flapBuildStepsEn,
+    flapSafetyItems: flapSafetyItemsEn,
+    flapTroubleshooting: flapTroubleshootingEn,
+    flapConfigs: flapConfigsEn,
+  },
+  he: {
+    flapVariantInfo: flapVariantInfoHe,
+    flapTheoryPoints: flapTheoryPointsHe,
+    flapBomItems: flapBomItemsHe,
+    flapWorkshopTools: flapWorkshopToolsHe,
+    flapPrototypeDimensions: flapPrototypeDimensionsHe,
+    flapBuildSteps: flapBuildStepsHe,
+    flapSafetyItems: flapSafetyItemsHe,
+    flapTroubleshooting: flapTroubleshootingHe,
+    flapConfigs: flapConfigsHe,
+  },
+};

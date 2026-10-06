@@ -4,10 +4,12 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import {
   stringsByLang,
   dataByLang,
+  variantStringsByLang,
   detectLanguageFromNavigator,
   type Lang,
   type UIStrings,
 } from "@/lib/patent/i18n";
+import FlapVariantPage from "@/components/build-guide/FlapVariantPage";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -51,6 +53,7 @@ import {
   Languages,
   Printer,
   Download,
+  Disc3,
 } from "lucide-react";
 
 // ============================================================
@@ -752,8 +755,35 @@ function TheoryDiagram({ t }: { t: UIStrings }) {
 export default function Home() {
   const [lang, setLang] = useLanguage();
   const t = stringsByLang[lang];
+  const vt = variantStringsByLang[lang];
+  // Variant toggle: "original" (Johnson patent) or "flap" (circular disc variant)
+  // Persisted to localStorage so the user's choice survives a refresh.
+  const [variant, setVariant] = useState<"original" | "flap">(() => {
+    if (typeof window === "undefined") return "original";
+    try {
+      const v = localStorage.getItem("pmm-variant");
+      return v === "flap" || v === "original" ? v : "original";
+    } catch {
+      return "original";
+    }
+  });
+
+  // Persist variant choice
+  useEffect(() => {
+    try {
+      localStorage.setItem("pmm-variant", variant);
+    } catch {
+      // ignore
+    }
+    // Scroll to top when switching variants so the user sees the start of the new design
+    if (typeof window !== "undefined") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }, [variant]);
+
   // Localized patent data — switches between English and Hebrew data modules
-  // based on the current language.
+  // based on the current language. Hooks must run unconditionally before any
+  // early return, so we always compute the data even when we won't use it.
   const data = dataByLang[lang];
   const {
     patentInfo,
@@ -789,6 +819,19 @@ export default function Home() {
     if (!claimSearch) return patentClaims;
     return patentClaims.filter((c) => c.text.toLowerCase().includes(claimSearch.toLowerCase()));
   }, [claimSearch, patentClaims]);
+
+  // ⬇⬇ EARLY RETURN for the flap variant — placed AFTER all hooks so we don't
+  // violate the React Hooks "rules of hooks" rule.
+  if (variant === "flap") {
+    return (
+      <FlapVariantPage
+        lang={lang}
+        onPrint={() => window.print()}
+        onBackToOriginal={() => setVariant("original")}
+        onLanguageToggle={() => setLang(lang === "en" ? "he" : "en")}
+      />
+    );
+  }
 
   const scrollTo = (id: string) => {
     document.getElementById(id)?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -859,8 +902,18 @@ export default function Home() {
             })}
           </nav>
 
-          {/* Right: language toggle + print button */}
+          {/* Right: design toggle + print button + language toggle */}
           <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="default"
+              onClick={() => setVariant("flap")}
+              className="text-xs gap-1.5 bg-gradient-to-r from-orange-600 to-slate-900 hover:from-orange-700 hover:to-slate-800"
+              title={vt.flapSubtitle}
+            >
+              <Disc3 className="h-3.5 w-3.5" />
+              <span className="hidden md:inline">{vt.flap}</span>
+            </Button>
             <Button
               size="sm"
               variant="outline"
